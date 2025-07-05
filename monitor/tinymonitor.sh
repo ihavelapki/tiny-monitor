@@ -18,23 +18,16 @@ getProcInfo() {
 
 
 getContainerInfo() {
+  docker ps --format "{{.Names}}" | while IFS= read -r name; do
+    docker top "$name" | tail -n +2 | while IFS= read -r line; do
+      pid=$(echo "$line" | awk '{print $2}')
+      ps -p "$pid" -o pid,rss,vsz,%mem,%cpu --sort=-%mem | awk -v name="$name" 'NR > 1 {print $0, name}'
+    done
+  done
+}
 
-	docker ps -a --format "{{.Names}}" | while IFS= read -r line; do
-	  # Действия со строкой $line
-	  echo "Обработка строки: $line"
-	  name = $line
-	#  docker top $line | awk 'NR > 1 {print $0}'
-	  
-	  docker top $line | while IFS= read -r line; do
-		((i++))
-		if [[ $i -eq 1 ]]; then
-			continue
-		fi
-	#	echo $line | awk '{print $2}'
-		ps -p $(echo $line | awk '{print $2}') -o pid,rss,vsz,%mem,%cpu --sort=-%mem | awk -v name="${name}" 'NR > 1 {print $0, name}'
-	  done;
-
-	done; 
+processContainerInfo() {
+  awk '{ printf "%3d | PID: %s | RSS: %4dMB | VSZ: %4dMB | MEM: %s%% | CPU: %s%% | CONTAINER: %s\n", NR, $1, int($2/1024), int($3/1024), $4, $5, $6 }'
 }
 
 export READLINK=$(readlink -f "$0")
