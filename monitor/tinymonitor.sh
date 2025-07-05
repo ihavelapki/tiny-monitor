@@ -69,12 +69,12 @@ date="$(date '+%Y-%m-%d')"
 mmc=$(< /proc/sys/vm/max_map_count)
 balloon="$(vmware-toolbox-cmd stat balloon 2>/dev/null || echo "N/A")"
 
-echo `date +%N` >> "$outfile"
+echo `date +%s%N` >> "$outfile"
 getProcesesInfo $CNT | awk -v date="$date" -v time="$time" -v mmc="$mmc" -v balloon="$balloon" "$awk_to_csv" >> "$outfile"
-echo `date +%N` >> "$outfile"
+echo `date +%s%N` >> "$outfile"
 
 sleep 2s
 
-echo `date +%N` >> "$outfile"
+echo `date +%s%N` >> "$outfile"
 getContainerInfo | awk -v date="$date" -v time="$time" -v mmc="$mmc" -v balloon="$balloon" "$awk_to_csv" >> "$outfile"
-echo `date +%N` >> "$outfile"
+echo `date +%s%N` >> "$outfile"
