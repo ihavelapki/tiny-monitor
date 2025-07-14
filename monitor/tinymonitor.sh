@@ -60,7 +60,7 @@ if [ ! -e "$outfile" ]; then
 fi
 
 if [ -z "$CNT" ]; then
-    CNT=10
+    CNT=100
 fi
 
 echo `date +%N` >> "$outfile"
@@ -69,12 +69,21 @@ date="$(date '+%Y-%m-%d')"
 mmc=$(< /proc/sys/vm/max_map_count)
 balloon="$(vmware-toolbox-cmd stat balloon 2>/dev/null || echo "N/A")"
 
-echo `date +%s%N` >> "$outfile"
+start_time=$(date +%s.%N)
 getProcesesInfo $CNT | awk -v date="$date" -v time="$time" -v mmc="$mmc" -v balloon="$balloon" "$awk_to_csv" >> "$outfile"
-echo `date +%s%N` >> "$outfile"
+end_time=$(date +%s.%N)
+elapsed=$(echo "($end_time - $start_time) * 1000" | bc)
+echo "Операция заняла ${elapsed} мс"
 
 sleep 2s
 
-echo `date +%s%N` >> "$outfile"
+
 getContainerInfo | awk -v date="$date" -v time="$time" -v mmc="$mmc" -v balloon="$balloon" "$awk_to_csv" >> "$outfile"
-echo `date +%s%N` >> "$outfile"
+end_time=$(date +%s.%N)
+elapsed=$(echo "($end_time - $start_time) * 1000" | bc)
+echo "Операция заняла ${elapsed} мс"
+
+
+
+
+
