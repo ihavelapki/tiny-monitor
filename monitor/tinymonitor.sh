@@ -1,89 +1,76 @@
 #!/bin/bash
 
-# getProcInfo() {
-# 	# Запрос процессов
-# 	ps -Ao pid,rss,vsz,%mem,%cpu,cmd --sort=-%mem | head -n 6 | \
-# 	awk -v date="$date" -v time="$time" -v mmc="$max_map_count" -v balloon="$balloon" '
-# 	BEGIN { OFS="|" }
-# 	NR > 1 {
-# 		pid=$1
-# 		cmd=$6
-# 		# Получение числа MAPS для процесса
-# 		"wc -l < /proc/"pid"/maps" | getline maps
-# 		close("wc -l < /proc/"pid"/maps")
-# 		print NR-1, date, time, pid, int($2/1024), int($3/1024), $4, $5, cmd, mmc, maps, balloon
-# 	}'
+REQUIRED_VARS=("CNT")
+export READLINK=$(readlink -f "$0")
+export SCRIPT_DIR=$(dirname "${READLINK}")
+echo "Readlink: ${READLINK}"
+echo "SCRIPT_DIR: ${SCRIPT_DIR}"
 
-# }
+source ${SCRIPT_DIR}/utils/header.sh
+# ------------------------------------- output parameters -----------------------------------------------------
+OUTPUT_PARAMS="NUM|DATE|TIME|PID|PPID|RSS(MB)|VSZ(MB)|%MEM|%CPU|CMD|MAXMAPCOUNT|MAPS|BALLOON"
 
+## ------------------------------------ awk scripts -----------------------------------------------------------
+awk_to_csv='{{"wc -l < /proc/"$1"/maps" | getline map; close("wc -l < /proc/"$1"/maps"); printf "%3d|%s|%s|%s|%s|%d|%d|%s|%s|%s|%s|%s|%s\n", NR, $1, $2, date, time, $3/1024, $4/1024, $5, $6, mmc, balloon, map, $7 }}'
+
+awk_to_json='{ printf "{\"N\":\"%3d\",\"PID\":\"%s\",\"PPID\":\"%s\",\"DATE\":\"%s\",\"TIME\":\"%s\",\"RSS\":\"%4dMB\",\"VSZ\":\"%4dMB\",\"MEM\":\"%s%%\",\"CPU\":\"%s%%\",\"MAXMAPCOUNT\":\"%s\",\"BALLOON\":\"%s\",\"CONTAINER\":\"%s\"}\n", NR, $1, $2, date, time, int($3/1024), int($4/1024), $5, $6, mmc, balloon, $7 }'
+
+
+## ------------------------------------ main function ---------------------------------------------------------
 getProcesesInfo() {
     local CNT=$1
     ps -Ao pid,ppid,rss,vsz,%mem,%cpu,cmd --sort=-%mem | head -n $CNT
 }
 
-getContainerInfo() {
-  docker ps --format "{{.Names}}" | while IFS= read -r name; do
-    docker top "$name" 2>/dev/null | tail -n +2 | while IFS= read -r line; do
-      pid=$(echo "$line" | awk '{print $2}')
-      ps -p "$pid" -o pid,ppid,rss,vsz,%mem,%cpu --sort=-%mem | awk -v name="$name" 'NR > 1 {print $0, name}'
-    done
-  done
-}
 
-# ------------------------------------ awk scripts -----------------------------------------------------------
-awk_to_csv='{ printf "%3d|%s|%s|%s|%s|%d|%d|%s|%s|%s|%s\n", NR, $1, $2, date, time, $3/1024, $4/1024, $5, $6, mmc, balloon, $7 }'
+## ------------------------------------ setup default parameters ----------------------------------------------
+# Добавить заголовок, если файла нет
+if [ -z "$OUTTYPE" ]; then
+	OUTTYPE="csv"
+fi
 
-awk_test='{ printf "%3d | PID: %s | RSS: %4dMB | VSZ: %4dMB | MEM: %s%% | CPU: %s%% | CONTAINER: %s\n", NR, $1, int($2/1024), int($3/1024), $4, $5, $6 }'
+if [ "$OUTTYPE" = "json" ]; then
+  awk_script="$awk_to_json"
+else
+  if [ ! -e "$outfile" ]; then
+    echo "${OUTPUT_PARAMS}" #>> "$outfile"
+  fi
+  awk_script="$awk_to_csv"
+fi
 
+if [ -z "$CNT" ]; then
+    CNT=10
+fi
 
-export READLINK=$(readlink -f "$0")
-export SCRIPT_DIR=$(dirname "${READLINK}")
-export SCRIPT_NAME=$(basename "${READLINK}")
-echo "Readlink: ${READLINK}"
-echo "SCRIPT_DIR: ${SCRIPT_DIR}"
-echo "Script name: ${SCRIPT_NAME}"
-
-source ${SCRIPT_DIR}/utils/header.sh
-
+TESTRUN="${TESTRUN:-true}"
+## ------------------------------------------------------
+start_time=$(date +%s.%N)
 user="$(whoami)"
 host="$(hostname)"
+time="$(date '+%H:%M:%S')"
+date="$(date '+%Y-%m-%d')"
 logname="${date}_${host}_tinymonitor.csv"
 basedir="/home/${user}/memory_monitor"
 logdir="$basedir/logs"
 outfile="$logdir/$logname"
-
-mkdir -p "$logdir"
-
-# Добавить заголовок, если файла нет
-if [ ! -e "$outfile" ]; then
-    echo "NUM|DATE|TIME|PID|PPID|RSS(MB)|VSZ(MB)|%MEM|%CPU|CMD|MAXMAPCOUNT|MAPS|BALLOON" >> "$outfile"
-fi
-
-if [ -z "$CNT" ]; then
-    CNT=100
-fi
-
-echo `date +%N` >> "$outfile"
-time="$(date '+%H:%M:%S')"
-date="$(date '+%Y-%m-%d')"
 mmc=$(< /proc/sys/vm/max_map_count)
 balloon="$(vmware-toolbox-cmd stat balloon 2>/dev/null || echo "N/A")"
 
-start_time=$(date +%s.%N)
-getProcesesInfo $CNT | awk -v date="$date" -v time="$time" -v mmc="$mmc" -v balloon="$balloon" "$awk_to_csv" >> "$outfile"
-end_time=$(date +%s.%N)
-elapsed=$(echo "($end_time - $start_time) * 1000" | bc)
-echo "Операция заняла ${elapsed} мс"
 
-sleep 2s
+if [ "$TESTRUN" = "true" ]; then
+  echo "${user}"
+  echo "${host}"
+  echo "${logname}"
+  echo "${basedir}"
+  echo "${logdir}"
+  echo "${outfile}"
+  
+  getProcesesInfo $CNT | awk -v date="$date" -v time="$time" -v mmc="$mmc" -v balloon="$balloon" "$awk_script"
+  end_time=$(date +%s.%N)
+  elapsed=$(echo "($end_time - $start_time) * 1000" | bc)
+  echo "Операция заняла ${elapsed} мс"
 
-
-getContainerInfo | awk -v date="$date" -v time="$time" -v mmc="$mmc" -v balloon="$balloon" "$awk_to_csv" >> "$outfile"
-end_time=$(date +%s.%N)
-elapsed=$(echo "($end_time - $start_time) * 1000" | bc)
-echo "Операция заняла ${elapsed} мс"
-
-
-
-
-
+else
+  mkdir -p "$logdir"
+  getProcesesInfo $CNT | awk -v date="$date" -v time="$time" -v mmc="$mmc" -v balloon="$balloon" "$awk_script" >> "$outfile"
+fi
