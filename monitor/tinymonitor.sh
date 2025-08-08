@@ -13,7 +13,7 @@ OUTPUT_PARAMS="NUM|DATE|TIME|PID|PPID|RSS(MB)|VSZ(MB)|%MEM|%CPU|CMD|MAXMAPCOUNT|
 ## ------------------------------------ awk scripts -----------------------------------------------------------
 awk_to_csv='{if (NR > 1) {"wc -l < /proc/"$1"/maps" | getline map; close("wc -l < /proc/"$1"/maps"); printf "%3d|%s|%s|%s|%s|%s|%d|%d|%s|%s|%s|%s|%s|%s\n", NR-1, $1, $2, date, time, host, $3/1024, $4/1024, $5, $6, mmc, map, balloon, $7 }}'
 
-awk_to_json='{if (NR > 1) {"wc -l < /proc/"$1"/maps" | getline map; close("wc -l < /proc/"$1"/maps"); printf "{\"N\":\"%3d\",\"PID\":\"%s\",\"PPID\":\"%s\",\"DATE\":\"%s\",\"TIME\":\"%s\",\"HOST\":\"%s\",\"RSS\":\"%4dMB\",\"VSZ\":\"%4dMB\",\"MEM\":\"%s%%\",\"CPU\":\"%s%%\",\"MAXMAPCOUNT\":\"%s\",\"MAPS\":\"%s\",\"BALLOON\":\"%s\",\"CMD\":\"%s\"}\n", NR-1, $1, $2, date, time, host, int($3/1024), int($4/1024), $5, $6, mmc, map, balloon, $7 }'
+awk_to_json='{if (NR > 1) {"wc -l < /proc/"$1"/maps" | getline map; close("wc -l < /proc/"$1"/maps"); printf "{\"N\":\"%3d\",\"PID\":\"%s\",\"PPID\":\"%s\",\"DATE\":\"%s\",\"TIME\":\"%s\",\"HOST\":\"%s\",\"RSS\":\"%d\",\"VSZ\":\"%d\",\"MEM\":\"%s\",\"CPU\":\"%s\",\"MAXMAPCOUNT\":\"%s\",\"MAPS\":\"%s\",\"BALLOON\":\"%s\",\"CMD\":\"%s\"}\n", NR-1, $1, $2, date, time, host, int($3/1024), int($4/1024), $5, $6, mmc, map,  balloon, $7 }}'
 
 
 ## ------------------------------------ main function ---------------------------------------------------------
@@ -65,8 +65,8 @@ if [ "$TESTRUN" = "true" ]; then
   echo "${logdir}"
   echo "${outfile}"
   
-  getProcesesInfo $CNT | awk -v date="$date" -v time="$time" -v mmc="$mmc" -v balloon="$balloon" -v host="$host" "$awk_script"
   end_time=$(date +%s.%N)
+  getProcesesInfo $CNT | awk -v date="$date" -v time="$time" -v mmc="$mmc" -v balloon="$balloon" -v host="$host" "$awk_script"
   elapsed=$(echo "($end_time - $start_time) * 1000" | bc)
   echo "Операция заняла ${elapsed} мс"
 
