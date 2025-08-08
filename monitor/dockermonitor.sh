@@ -9,6 +9,12 @@ getContainerInfo() {
   done
 }
 
+getContainerInfo() {
+  ps --ppid 1 -f | grep /usr/bin/containerd-shim-runc-v2 | awk '{print $2}' | while IFS= read -r pid; do 
+  # echo $pid
+    ps --ppid "${pid}" -o pid,ppid,%mem,%cpu,cmd | tail -n +2
+  done
+}
 # ------------------------------------ awk scripts -----------------------------------------------------------
 awk_to_csv='{ printf "%3d|%s|%s|%s|%s|%d|%d|%s|%s|%s|%s\n", NR, $1, $2, date, time, $3/1024, $4/1024, $5, $6, mmc, balloon, $7 }'
 
