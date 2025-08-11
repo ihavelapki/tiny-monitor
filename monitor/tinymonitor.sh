@@ -1,19 +1,18 @@
 #!/bin/bash
 
-REQUIRED_VARS=("CNT")
 export READLINK=$(readlink -f "$0")
 export SCRIPT_DIR=$(dirname "${READLINK}")
 echo "Readlink: ${READLINK}"
 echo "SCRIPT_DIR: ${SCRIPT_DIR}"
 
-source ${SCRIPT_DIR}/utils/header.sh
+#source ${SCRIPT_DIR}/utils/header.sh
 # ------------------------------------- output parameters -----------------------------------------------------
 OUTPUT_PARAMS="NUM|DATE|TIME|PID|PPID|RSS(MB)|VSZ(MB)|%MEM|%CPU|CMD|MAXMAPCOUNT|MAPS|BALLOON"
 
 ## ------------------------------------ awk scripts -----------------------------------------------------------
-awk_to_csv='{if (NR > 1) {"wc -l < /proc/"$1"/maps" | getline map; close("wc -l < /proc/"$1"/maps"); printf "%3d|%s|%s|%s|%s|%s|%d|%d|%s|%s|%s|%s|%s|%s\n", NR-1, $1, $2, date, time, host, $3/1024, $4/1024, $5, $6, mmc, map, balloon, $7 }}'
+awk_to_csv='{if (NR > 1) {"wc -l < /proc/"$1"/maps" | getline map; close("wc -l < /proc/"$1"/maps"); printf "%3d|%s|%s|%s|%s|%s|%d|%d|%s|%s|%s|%s|%s|%s\n", NR-1, date, time, host, $1, $2, $3/1024, $4/1024, $5, $6, mmc, map, balloon, $7 }}'
 
-awk_to_json='{if (NR > 1) {"wc -l < /proc/"$1"/maps" | getline map; close("wc -l < /proc/"$1"/maps"); printf "{\"N\":\"%3d\",\"PID\":\"%s\",\"PPID\":\"%s\",\"DATE\":\"%s\",\"TIME\":\"%s\",\"HOST\":\"%s\",\"RSS\":\"%d\",\"VSZ\":\"%d\",\"MEM\":\"%s\",\"CPU\":\"%s\",\"MAXMAPCOUNT\":\"%s\",\"MAPS\":\"%s\",\"BALLOON\":\"%s\",\"CMD\":\"%s\"}\n", NR-1, $1, $2, date, time, host, int($3/1024), int($4/1024), $5, $6, mmc, map,  balloon, $7 }}'
+awk_to_json='{if (NR > 1) {"wc -l < /proc/"$1"/maps" | getline map; close("wc -l < /proc/"$1"/maps"); printf "{\"N\":\"%3d\",\"DATE\":\"%s\",\"TIME\":\"%s\",\"HOST\":\"%s\",\"PID\":\"%s\",\"PPID\":\"%s\",\"RSS\":\"%d\",\"VSZ\":\"%d\",\"MEM\":\"%s\",\"CPU\":\"%s\",\"MAXMAPCOUNT\":\"%s\",\"MAPS\":\"%s\",\"BALLOON\":\"%s\",\"CMD\":\"%s\"}\n", NR-1, $1, $2, date, time, host, int($3/1024), int($4/1024), $5, $6, mmc, map,  balloon, $7 }}'
 
 ## ------------------------------------ main function ---------------------------------------------------------
 getProcesesInfo() {
@@ -22,7 +21,7 @@ getProcesesInfo() {
 }
 
 ## ------------------------------------ setup default parameters ----------------------------------------------
-PROCESSCOUNT="${PROCESSCOUNT:-10}"
+PROCESSCOUNT=$(( "${PROCESSCOUNT:-10}"+1 ))
 TESTRUN="${TESTRUN:-true}"
 OUTTYPE="${OUTTYPE:-csv}"
 if [ "$OUTTYPE" = "json" ]; then
@@ -44,18 +43,22 @@ outfile="$logdir/$logname"
 mmc=$(< /proc/sys/vm/max_map_count)
 balloon="$(vmware-toolbox-cmd stat balloon 2>/dev/null || echo "N/A")"
 
-
 if [ "$TESTRUN" = "true" ]; then
-  echo "${user}\n${host}\n${logname}\n${basedir}\n${logdir}\n${outfile}\n"
+  mid_time=$(date +%s.%N)
+  elapsed=$(echo "($mid_time - $start_time) * 1000" | bc)
+  echo "Операция заняла ${elapsed} мс"
+  echo -e "${user}\n${host}\n${logname}\n${basedir}\n${logdir}\n${outfile}\n"	
+
+  echo "${OUTPUT_PARAMS}" 
   
+  getProcesesInfo $PROCESSCOUNT | awk -v date="$date" -v time="$time" -v mmc="$mmc" -v balloon="$balloon" -v host="$host" "$awk_script"
   end_time=$(date +%s.%N)
-  getProcesesInfo $CNT | awk -v date="$date" -v time="$time" -v mmc="$mmc" -v balloon="$balloon" -v host="$host" "$awk_script"
-  elapsed=$(echo "($end_time - $start_time) * 1000" | bc)
+  elapsed=$(echo "($end_time - $mid_time) * 1000" | bc)
   echo "Операция заняла ${elapsed} мс"
 else
   mkdir -p "$logdir"
   if [ "$OUTTYPE" = "csv" ]; then
     echo "${OUTPUT_PARAMS}" >> "$outfile"
   fi
-  getProcesesInfo (($PROCESSCOUNT+1)) | awk -v date="$date" -v time="$time" -v mmc="$mmc" -v balloon="$balloon" -v host="$host" "$awk_script" >> "$outfile"
+  getProcesesInfo $PROCESSCOUNT | awk -v date="$date" -v time="$time" -v mmc="$mmc" -v balloon="$balloon" -v host="$host" "$awk_script" >> "$outfile"
 fi
