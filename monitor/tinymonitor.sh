@@ -22,7 +22,7 @@ getProcesesInfo() {
 
 ## ------------------------------------ setup default parameters ----------------------------------------------
 PROCESSCOUNT=$(( "${PROCESSCOUNT:-10}"+1 ))
-TESTRUN="${TESTRUN:-true}"
+TESTRUN="${TESTRUN:-false}"
 OUTTYPE="${OUTTYPE:-csv}"
 if [ "$OUTTYPE" = "json" ]; then
   awk_script="$awk_to_json"
@@ -57,7 +57,7 @@ if [ "$TESTRUN" = "true" ]; then
   echo "Операция заняла ${elapsed} мс"
 else
   mkdir -p "$logdir"
-  if [ "$OUTTYPE" = "csv" ]; then
+  if [[ "$OUTTYPE" = "csv" && ! -f "$outfile" ]]; then
     echo "${OUTPUT_PARAMS}" >> "$outfile"
   fi
   getProcesesInfo $PROCESSCOUNT | awk -v date="$date" -v time="$time" -v mmc="$mmc" -v balloon="$balloon" -v host="$host" "$awk_script" >> "$outfile"
