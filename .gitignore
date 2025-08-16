@@ -1,2 +1,6 @@
 .ipynb*
 .DS_Store
+.venv
+.DRAFT.md
+__pycache__
+.vscode
