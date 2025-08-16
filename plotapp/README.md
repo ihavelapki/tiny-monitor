@@ -12,13 +12,10 @@
     Or create the new one before by following command: `python -m venv .venv`
 
 - To add virtual env to the gitignore: `echo ".venv" >> .gitignore`
-
 - To activate this .venv: `source .venv/bin/activate`
-
+- Check path to current python: `which python`
 - Install `poetry`: `pip install poetry`
-
 - I also did: `python -m pip install --upgrade pip`
-
 - Check version: `poetry --version`
     ```
     Poetry (version 2.1.4)
@@ -39,7 +36,11 @@
 
 - Let's add requirements to poetry
 ```sh
-
 poetry add fastapi
 poetry add uvicorn
+```
+
+```sh
+pip install fastapi
+pip install uvicorn
 ```
