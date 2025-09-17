@@ -10,9 +10,9 @@ kek="jopa"
 app = FastAPI(title=settings.PROJECT_NAME, version="0.1.0")
 app.include_router(api_router_v1, prefix="/kek")
 
-# @app.get('/')
-# async def index():
-#     return {'response': 'This is a FastApi backend app'}
+@app.get('/')
+async def index():
+    return {'response': 'This is a FastApi backend app'}
 
 # Настройка маршрута для статических файлов
 app.mount("/static", StaticFiles(directory="src/app/static"), name="static")

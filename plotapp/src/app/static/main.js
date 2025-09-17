@@ -1,5 +1,5 @@
 async function fetchMetrics() {
-  const response = await fetch("/api/metrics");
+  const response = await fetch("/kek/api/v1/metrics");
   const data = await response.json();
   return data;
 }
