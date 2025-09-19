@@ -44,3 +44,9 @@ poetry add uvicorn
 pip install fastapi
 pip install uvicorn
 ```
+
+
+### start in dev:
+```sh
+poetry run uvicorn app.main:app --reload --app-dir src
+```
