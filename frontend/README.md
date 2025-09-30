@@ -82,71 +82,81 @@ cd frontend
 npm create vite@latest showapp -- --template react-ts | tee -a ../var/log/frontend-`date +%Y%m%d`-`date +%H%M`-vite-new-prjt.log
 ```
 
+>```
+> npx
+> create-vite showapp --template react-ts
+>
+>[?25l│
+>◆  Use rolldown-vite (Experimental)?:
+>│
+>└
+>[999D[4A[1B[J◇  Use rolldown-vite >(Experimental)?:
+>│  No
+>[?25h[?25l│
+>◆  Install with npm and start now?
+>│  ● Yes / ○ No
+>└
+>[999D[4A[1B[J◇  Install with npm and start now?
+>│  Yes
+>[?25h│
+>◇  Scaffolding project in /Users/kot/Education/>Projects/DevOps/tiny-monitor/frontend/showapp...
+>│
+>◇  Installing dependencies with npm...
+>
+>added 188 packages, and audited 189 packages in 8s
+>
+>47 packages are looking for funding
+>  run `npm fund` for details
+>
+>found 0 vulnerabilities
+>│
+>◇  Starting dev server...
+>
+>> showapp@0.0.0 dev
+>> vite
+>
+>
+>  VITE v7.1.7  ready in 279 ms
+>
+>  ➜  Local:   http://localhost:5173/
+>  ➜  Network: use --host to expose
+>  ➜  press h + enter to show help
+>
+>  Shortcuts
+>  press r + enter to restart the server
+>  press u + enter to show server url
+>  press o + enter to open in browser
+>  press c + enter to clear console
+>  press q + enter to quit
+>10:43:19 PM [vite] server restarted.
+>
+>  ➜  Local:   http://localhost:5173/
+>  ➜  Network: use --host to expose
+>```
 
-## Попросил железный мозг составить для меня план изучения:
-
-📚 План изучения React + TypeScript
-2. Основы TypeScript (для React-разработки)
-    - Типы примитивов (string, number, boolean, null, undefined).
-    - Интерфейсы и типы (interface, type).
-    - Массивы и объекты с типами (Array<T>, Record<K,V>).
-    - Generics (обобщения).
-    - Enum и Union Types ("success" | "error").
-    - Optional и Nullable поля (? и | null).
-    - Работа с модулями и импортами.
-
-    📌 Мини-задачи:
-    - Напиши интерфейс для пользователя.
-    - Создай массив пользователей и типизируй его.
-    - Опиши функцию с generic, которая возвращает первый элемент массива.
-
-3. Основы React с TypeScript
-
-JSX и компоненты
-
-Функциональные компоненты:
+### **Получился следующий проект**
 ```sh
-type Props = { name: string };
-function Hello({ name }: Props) {
-  return <h1>Hello, {name}</h1>;
-}
+|__showapp
+        ├── .gitignore
+        ├── README.md
+        ├── eslint.config.js
+        ├── index.html
+        ├── node_modules
+        │       ├──...
+        │       └──....
+        ├── package-lock.json
+        ├── package.json
+        ├── public
+        │       └──vite.svg
+        ├── src/
+        │       ├──App.css
+        │       ├──App.tsx
+        │       ├──assets
+        │       │       └──react.svg
+        │       ├──index.css
+        │       └──main.tsx
+        ├── tsconfig.app.json
+        ├── tsconfig.json
+        ├── tsconfig.node.json
+        └── vite.config.ts
 ```
-
-React.FC vs явное объявление типов (лучше без React.FC).
-
-Props и children
-
-Типизация пропсов (Props) и children: React.ReactNode.
-
-Состояние (useState)
-
-const [count, setCount] = useState<number>(0);
-
-События
-
-Типизация событий: React.ChangeEvent<HTMLInputElement>, React.MouseEvent<HTMLButtonElement>.
-
-Условный рендеринг и списки
-
-Ключи (key), типизация массивов.
-
-📌 Мини-задачи:
-
-Сделай компонент Counter с кнопками + и -.
-
-Создай TodoList с интерфейсом Todo { id: number; text: string; done: boolean }.
-
-
-4. Работа с состоянием
-
-useReducer — типизация действий (Action).
-
-Context API
-
-Создание Context с типизированным value.
-
-Использование createContext<T>() и useContext.
-
-📌 Мини-задача:
-
-Реализуй глобальное хранилище для ThemeContext (light | dark).
