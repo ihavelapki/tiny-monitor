@@ -160,3 +160,65 @@ npm create vite@latest showapp -- --template react-ts | tee -a ../var/log/fronte
         ├── tsconfig.node.json
         └── vite.config.ts
 ```
+
+## Переделать проект под FSD:
+
+- Создаем папки и перемещаем файлики:
+```sh
+cd frontend/showapp
+mkdir -p src/app
+mkdir -p src/shared/styles
+mkdir -p src/pages/Home
+
+git rm -r src/assets/
+git mv src/App.tsx src/app 
+git mv src/App.css src/shared/styles 
+git mv src/index.css src/shared/styles 
+
+touch src/pages/Home/index.tsx
+```
+
+- редактируем main.ts
+```ts
+// меняем это
+import './index.css'
+import App from './App.tsx'
+
+// на это
+import './shared/styles/index.css'
+import App from './app/App'
+```
+
+- Добавляем в `src/pages/Home/index.tsx`:
+```ts
+import '../../shared/styles/index.css';
+
+const Homepage = () => {
+    return (
+        <div>
+            <h1>CPU and RAM showpage</h1>
+        </div>
+    );
+};
+
+export default Homepage;
+```
+
+
+- редактируем App.tsx
+```ts
+// это 
+import './App.css'
+// на это
+import '../shared/styles/App.css'
+```
+
+Удаляем всю внутренность внутри return и делаем так:
+```ts
+  return (
+      <Homepage/>  
+  )
+```
+
+Ненужные импорты удаляем
+
