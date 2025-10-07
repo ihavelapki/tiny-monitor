@@ -7,7 +7,7 @@ echo "SCRIPT_DIR: ${SCRIPT_DIR}"
 
 #source ${SCRIPT_DIR}/utils/header.sh
 # ------------------------------------- output parameters -----------------------------------------------------
-OUTPUT_PARAMS="NUM|DATE|TIME|HOST|PID|PPID|RSS(MB)|VSZ(MB)|%MEM|%CPU|MMC|MAPS|BALLOON|CMD"
+OUTPUT_PARAMS="NUM|DATE|TIME|HOST|PID|PPID|RSS(MB)|VSZ(MB)|MEM|CPU|MMC|MAPS|BALLOON|CMD"
 
 ## ------------------------------------ awk scripts -----------------------------------------------------------
 awk_to_csv='{if (NR > 1) {"wc -l < /proc/"$1"/maps" | getline map; close("wc -l < /proc/"$1"/maps"); printf "%3d|%s|%s|%s|%s|%s|%d|%d|%s|%s|%s|%s|%s|%s\n", NR-1, date, time, host, $1, $2, $3/1024, $4/1024, $5, $6, mmc, map, balloon, $7 }}'
