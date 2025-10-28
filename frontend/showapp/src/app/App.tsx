@@ -1,4 +1,5 @@
 import '../shared/styles/App.css'
+
 import Homepage from '../pages/Home'
 
 function App() {
