@@ -12,3 +12,10 @@ This is a small script for monitoring top processes on the server.
 
 
 ## Env переменные
+
+
+
+
+
+sudo systemctl daemon-reload
+sudo systemctl enable --now tinymonitor.timer
