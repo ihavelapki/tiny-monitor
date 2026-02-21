@@ -4,3 +4,4 @@
 .DRAFT.md
 __pycache__
 .vscode
+var/log

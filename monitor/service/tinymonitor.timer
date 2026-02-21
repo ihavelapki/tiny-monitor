@@ -1,0 +1,10 @@
+[Unit]
+Description=Run tinymonitor every minute
+
+[Timer]
+OnCalendar=minutely
+Persistent=false
+Unit=tinymonitor.service
+
+[Install]
+WantedBy=timers.target
