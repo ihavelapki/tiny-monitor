@@ -1,6 +1,6 @@
 # **tiny-monitor agent**
 
-Lightweight sh-based monitoring agent for Linux hosts.
+Lightweight shell-based monitoring agent for Linux hosts.
 
 This component is responsible for:
 
@@ -78,7 +78,7 @@ Example:
 ```
 
 
-### *Logfile name convention**
+### **Logfile name convention**
 
 Log filename pattern consists of three parts: `current date`-`hostname`-`metric type`.jsonl
 One file per metric group per day. Files must not mix record types
@@ -86,7 +86,7 @@ One file per metric group per day. Files must not mix record types
 Where:
 - current date is in `YYYY-MM-DD` format 
 - hostname is the result of the `hostname -f` command
-- metric type is one of the following values: `process`, `server`, `container`
+- metric type is one of the following values: `process`, `host`, `container`
 
 Examples:
 - `2026-03-08-myhost.domain-process.jsonl`
@@ -94,7 +94,7 @@ Examples:
 - `2026-03-08-myhost.domain-container.jsonl`
 
 
-### **Filds names conventions**
+### **Fields names conventions**
 
 Current schema version: `v1`.
 - All field names in JSONL records must follow a snake_case naming convention.
@@ -106,15 +106,15 @@ Current schema version: `v1`.
 - `mem` and `cpu` are numeric strings representing percent values
 - missing or unavailable optional values may be represented as `"N/A"`
 
-Is it nessesary param?: 
+Is it necessary param?: 
 - [x] - yes
 - [ ] - no
 
 #### **host metrics**
 - [x] `timestamp`: Timestamp of the main call
 - [x] `host`: FQDN of the current host
-- [x] `metric_type`: Type of metrics file. Always equal `host` in server metrics log files
-- [x] `mem_free` - nessesary: yes, MB
+- [x] `metric_type`: Type of metrics file. Always equal `host` in hosts metrics log files
+- [x] `mem_free` - necessary: yes, MB
 - [x] `mem_total`
 - [x] `mem_available`
 - [x] `buffers`
