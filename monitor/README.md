@@ -64,15 +64,94 @@ Example:
 
 - log for hosts metrics
 ```jsonl
-{"DT":"2026-03-03T23:56:02Z","HOST":"myhost.domain","BALLOON":"N/A","MMC":"65530","MemTotal":"15988","MemFree":"384","MemAvailable":"5890","Buffers":"167","Cached":"5538"}
-{"DT":"2026-03-03T23:57:02Z","HOST":"myhost.domain","BALLOON":"N/A","MMC":"65530","MemTotal":"15988","MemFree":"372","MemAvailable":"5879","Buffers":"167","Cached":"5538"}
+{"timestamp":"2026-03-03T23:56:02Z","host":"myhost.domain","balloon":"N/A","max_map_count":"65530","mem_total":"15988","mem_free":"384","mem_available":"5890","buffers":"167","cached":"5538"}
+{"timestamp":"2026-03-03T23:57:02Z","host":"myhost.domain","balloon":"N/A","max_map_count":"65530","mem_total":"15988","mem_free":"372","mem_available":"5879","buffers":"167","cached":"5538"}
 ```
 - log for process metrics
 ```jsonl
-{"N":"1","DT":"2026-03-03T23:59:02Z","HOST":"myhost.domain","PID":"414017","PPID":"413993","RSS":"2107","VSZ":"14710","MEM":"13.1","CPU":"0.7","CMD":"java-1.jar"}
-{"N":"2","DT":"2026-03-03T23:59:02Z","HOST":"myhost.domain","PID":"4002481","PPID":"4002460","RSS":"1433","VSZ":"9541","MEM":"8.9","CPU":"0.5","CMD":"java-2.jar"}
-{"N":"3","DT":"2026-03-03T23:59:02Z","HOST":"myhost.domain","PID":"3138820","PPID":"3138799","RSS":"933","VSZ":"7827","MEM":"5.8","CPU":"1.5","CMD":"java-3.jar"}
+{"rang":"1","timestamp":"2026-03-03T23:59:02Z","host":"myhost.domain","pid":"414017","ppid":"413993","rss":"2107","vsz":"14710","mem":"13.1","cpu":"0.7","cmd":"java-1.jar"}
+{"rang":"2","timestamp":"2026-03-03T23:59:02Z","host":"myhost.domain","pid":"4002481","ppid":"4002460","rss":"1433","vsz":"9541","mem":"8.9","cpu":"0.5","cmd":"java-2.jar"}
+{"rang":"3","timestamp":"2026-03-03T23:59:02Z","host":"myhost.domain","pid":"3138820","ppid":"3138799","rss":"933","vsz":"7827","mem":"5.8","cpu":"1.5","cmd":"java-3.jar"}
 ```
 - log for docker containers metrics
 ```jsonl
 ```
+
+
+### *Logfile name convention**
+
+Log filename pattern consists of three parts: `current date`-`hostname`-`metric type`.jsonl
+One file per metric group per day. Files must not mix record types
+
+Where:
+- current date is in `YYYY-MM-DD` format 
+- hostname is the result of the `hostname -f` command
+- metric type is one of the following values: `process`, `server`, `container`
+
+Examples:
+- `2026-03-08-myhost.domain-process.jsonl`
+- `2026-03-08-myhost.domain-host.jsonl`
+- `2026-03-08-myhost.domain-container.jsonl`
+
+
+### **Filds names conventions**
+
+Current schema version: `v1`.
+- All field names in JSONL records must follow a snake_case naming convention.
+- In v1 all fields are are serialized as JSON strings. 
+- Changing types will be on backend level
+- `timestamps` are strings in RFC3339 UTC format
+- `n`, `pid`, `ppid`, `max_map_count` are integer-like strings
+- `rss`, `vsz`, `mem_total`, `mem_free`, `mem_available`, `buffers`, `cached`, `balloon` are numeric strings in MB unless stated otherwise
+- `mem` and `cpu` are numeric strings representing percent values
+- missing or unavailable optional values may be represented as `"N/A"`
+
+Is it nessesary param?: 
+- [x] - yes
+- [ ] - no
+
+#### **host metrics**
+- [x] `timestamp`: Timestamp of the main call
+- [x] `host`: FQDN of the current host
+- [x] `metric_type`: Type of metrics file. Always equal `host` in server metrics log files
+- [x] `mem_free` - nessesary: yes, MB
+- [x] `mem_total`
+- [x] `mem_available`
+- [x] `buffers`
+- [x] `cached`
+- [ ] `max_map_count` - max maps count on the current server
+- [ ] `balloon`
+
+#### **process metrics**
+- [x] `rang`: Ranged row number. Rang of the process by mem utility
+- [x] `timestamp`: Timestamp of the main call
+- [x] `host`: FQDN of the current host
+- [x] `metric_type`: Type of metrics file. Always equal `process` in process metrics log files
+- [x] `pid` - process pid
+- [x] `ppid` - parent process pid
+- [x] `rss`
+- [x] `vsz`
+- [x] `mem`
+- [x] `cpu`
+- [x] `cmd`
+
+#### **containers metrics**
+container metrics not yet defined
+
+## Failure handling
+
+The agent should support partial failure behavior.
+
+Rules for v1:
+- failure to collect one optional metric group must not necessarily fail the entire run
+- required metric groups and fatal write failures must result in a non-zero exit code
+- operational errors must be written to service logs, not to metric files
+
+## Security assumptions
+
+The v1 agent assumes:
+- local configuration files are trusted
+- metric output files are stored as plaintext
+- metric files may contain process names and host identifiers
+- debug or operational logs must not contain secrets
+- the agent is intended for trusted single-tenant or small-team environments
