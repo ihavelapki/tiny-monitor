@@ -22,24 +22,32 @@ source "${PROJECT_LIB}/servermonitor.sh"
 main() {
     start_time=$(date +%s.%N)
     user="$(whoami)"
-    host="$(hostname)"
-    date="$(date '+%Y-%m-%d')"
-    time="$(date '+%H:%M:%S')"
-    logdir="/opt/rtl/var/log/tinymonitor"
+    home="$(eval echo "~$user")"
+    dt="$(timestamp)"
+    date="$(echo $dt | cut -d ' ' -f1)"
+    host="$(hostname -f)"
+    logdir="${home}/tinymonitor/logs"
+
     # Create log directory if it doesn't exist
+    mkdir -p "$logdir"
 
     parse_args "$@"
     validate_args
     mkdir -p "$logdir"
 
     # Get server info
-    getServerInfo
+    run_host_metrics "$dt" "$host" "$logdir/$date-$host-server.jsonl"
 
     # Get process info (top 10)
-    getProcesesInfo 10
+    run_process_metrics "$dt" "$host" "$CNT_PROC" "$logdir/$date-$host-process.jsonl"
 
     # Get container info
-    getContainerInfo
+    # getContainerInfo
+    end_time=$(date +%s.%N)
+    elapsed=$(echo "($end_time - $start_time) * 1000" | bc)
+    if [[ "$LOG_LEVEL" == "INFO" ]]; then
+        log_info "Metrics collected in ${elapsed} ms"
+    fi
 }
 
 main "$@"

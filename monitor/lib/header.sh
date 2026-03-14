@@ -25,6 +25,9 @@ Options:
   -v, --version           Show version
   -f <logfile>            Path to log file
   --env-file <path>       Path to .env file
+  --cnt-proc <number>     Number of processes to monitor (default: 10)
+  --dry-run, -C           Run in dry-run mode (no changes made)
+  --log-level <level>     Set log level (default: ERROR)
 EOF
 }
 
@@ -97,7 +100,7 @@ parse_args() {
         SHOW_VERSION=1
         shift
         ;;
-      -f)
+      -f|--log-file)
         [[ "$#" -ge 2 ]] || die "option -f requires an argument"
         LOG_FILE="$2"
         shift 2
@@ -105,6 +108,20 @@ parse_args() {
       --env-file)
         [[ "$#" -ge 2 ]] || die "option --env-file requires an argument"
         ENV_FILE="$2"
+        shift 2
+        ;;
+      --cnt-proc)
+        [[ "$#" -ge 2 ]] || die "option --cnt-proc requires an argument"
+        CNT_PROC="${2:-10}"
+        shift 2
+        ;;
+      --dry-run|-C)
+        DRY_RUN=1
+        shift
+        ;;
+      --log-level)
+        [[ "$#" -ge 2 ]] || die "option --log-level requires an argument"
+        LOG_LEVEL="${2:-ERROR}"
         shift 2
         ;;
       *)

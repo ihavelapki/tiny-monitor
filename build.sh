@@ -46,6 +46,10 @@ cp -r monitor/lib/. ${BUILD_DIR}/usr/local/lib/${PKG_NAME}/
 cp service/tinymonitor.service ${BUILD_DIR}/etc/systemd/system/${PKG_NAME}.service
 cp service/tinymonitor.timer ${BUILD_DIR}/etc/systemd/system/${PKG_NAME}.timer
 
+# Change version in service file
+sed -i 's|^readonly SCRIPT_VERSION=.*$|readonly SCRIPT_VERSION="'${PKG_VERSION}'"|' ${BUILD_DIR}/usr/local/bin/${PKG_NAME}
+
+
 # Creation control file
 cat > ${BUILD_DIR}/DEBIAN/control <<EOF
 Package: ${PKG_NAME}
