@@ -45,9 +45,7 @@ main() {
     # getContainerInfo
     end_time=$(date +%s.%N)
     elapsed=$(echo "($end_time - $start_time) * 1000" | bc)
-    if [[ "$LOG_LEVEL" == "INFO" ]]; then
-        log_info "Metrics collected in ${elapsed} ms"
-    fi
+    log_debug "Metrics collected in ${elapsed} ms"
 }
 
 main "$@"

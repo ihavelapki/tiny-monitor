@@ -24,9 +24,9 @@ Options:
   -h, --help              Show help
   -v, --version           Show version
   -f <logfile>            Path to log file
+  --dry-run, -C           Run in dry-run mode (no changes made)
   --env-file <path>       Path to .env file
   --cnt-proc <number>     Number of processes to monitor (default: 10)
-  --dry-run, -C           Run in dry-run mode (no changes made)
   --log-level <level>     Set log level (default: ERROR)
 EOF
 }
@@ -48,12 +48,25 @@ log() {
     "$*"
 }
 
+log_debug() {
+  case "$LOG_LEVEL" in
+    DEBUG)
+    log DEBUG "$@"
+  esac
+}
+
 log_info() {
-  log INFO "$@"
+  case "$LOG_LEVEL" in
+    DEBUG|INFO)
+    log INFO "$@"
+  esac
 }
 
 log_warn() {
-  log WARN "$@"
+  case "$LOG_LEVEL" in
+    DEBUG|INFO|WARN)
+    log WARN "$@"
+  esac
 }
 
 log_error() {
@@ -66,16 +79,13 @@ die() {
 }
 
 parse_args() {
+  DRY_RUN=0
   LOG_FILE=""
   ENV_FILE=""
+  CNT_PROC=10
+  LOG_LEVEL="ERROR"
   SHOW_HELP=0
   SHOW_VERSION=0
-
-  # 1. Если аргументов нет вообще
-  if [[ "$#" -eq 0 ]]; then
-    usage >&2
-    die "action and entity are required"
-  fi
 
   # 2. Глобальные флаги без action/entity
   case "${1:-}" in
@@ -112,7 +122,7 @@ parse_args() {
         ;;
       --cnt-proc)
         [[ "$#" -ge 2 ]] || die "option --cnt-proc requires an argument"
-        CNT_PROC="${2:-10}"
+        CNT_PROC="$2"
         shift 2
         ;;
       --dry-run|-C)
@@ -121,7 +131,7 @@ parse_args() {
         ;;
       --log-level)
         [[ "$#" -ge 2 ]] || die "option --log-level requires an argument"
-        LOG_LEVEL="${2:-ERROR}"
+        LOG_LEVEL="$2"
         shift 2
         ;;
       *)
