@@ -1,12 +1,5 @@
 #!/bin/bash
 
-ACTION=""
-ENTITY=""
-SHOW_HELP=0
-SHOW_VERSION=0
-LOG_FILE=""
-ENV_FILE=""
-
 usage() {
   cat <<'EOF'
 Usage:

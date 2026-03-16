@@ -69,9 +69,9 @@ Example:
 ```
 - log for process metrics
 ```jsonl
-{"rang":"1","timestamp":"2026-03-03T23:59:02Z","host":"myhost.domain","pid":"414017","ppid":"413993","rss":"2107","vsz":"14710","mem":"13.1","cpu":"0.7","cmd":"java-1.jar"}
-{"rang":"2","timestamp":"2026-03-03T23:59:02Z","host":"myhost.domain","pid":"4002481","ppid":"4002460","rss":"1433","vsz":"9541","mem":"8.9","cpu":"0.5","cmd":"java-2.jar"}
-{"rang":"3","timestamp":"2026-03-03T23:59:02Z","host":"myhost.domain","pid":"3138820","ppid":"3138799","rss":"933","vsz":"7827","mem":"5.8","cpu":"1.5","cmd":"java-3.jar"}
+{"rank":"1","timestamp":"2026-03-03T23:59:02Z","host":"myhost.domain","pid":"414017","ppid":"413993","rss":"2107","vsz":"14710","mem":"13.1","cpu":"0.7","cmd":"java-1.jar"}
+{"rank":"2","timestamp":"2026-03-03T23:59:02Z","host":"myhost.domain","pid":"4002481","ppid":"4002460","rss":"1433","vsz":"9541","mem":"8.9","cpu":"0.5","cmd":"java-2.jar"}
+{"rank":"3","timestamp":"2026-03-03T23:59:02Z","host":"myhost.domain","pid":"3138820","ppid":"3138799","rss":"933","vsz":"7827","mem":"5.8","cpu":"1.5","cmd":"java-3.jar"}
 ```
 - log for docker containers metrics
 ```jsonl
@@ -123,7 +123,7 @@ Is it necessary param?:
 - [ ] `balloon`
 
 #### **process metrics**
-- [x] `rang`: Ranged row number. Rang of the process by mem utility
+- [x] `rank`: ranked row number. rank of the process by mem utility
 - [x] `timestamp`: Timestamp of the main call
 - [x] `host`: FQDN of the current host
 - [x] `metric_type`: Type of metrics file. Always equal `process` in process metrics log files

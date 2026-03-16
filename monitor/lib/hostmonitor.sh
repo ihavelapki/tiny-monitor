@@ -1,7 +1,7 @@
 #!/bin/bash
 set -Eeuo pipefail
 
-collect_server_metrics_raw() {
+collect_host_metrics_raw() {
 
   local balloon
   local mem_total mem_free mem_available buffers cached
@@ -25,7 +25,7 @@ collect_server_metrics_raw() {
     "$balloon" "$mem_total" "$mem_free" "$mem_available" "$buffers" "$cached"
 }
 
-serialize_server_metrics_jsonl() {
+serialize_host_metrics_jsonl() {
   local dt="${1:?timestamp is required}"
   local host="${2:?host is required}"
 
@@ -33,7 +33,7 @@ serialize_server_metrics_jsonl() {
 
   IFS=$'\t' read -r balloon mem_total mem_free mem_available buffers cached
 
-  printf '{"timestamp":"%s","host":"%s","metric_type":"server","balloon":"%s","mem_total":"%s","mem_free":"%s","mem_available":"%s","buffers":"%s","cached":"%s"}\n' \
+  printf '{"timestamp":"%s","host":"%s","metric_type":"host","balloon":"%s","mem_total":"%s","mem_free":"%s","mem_available":"%s","buffers":"%s","cached":"%s"}\n' \
     "$dt" "$host" "$balloon" "$mem_total" "$mem_free" "$mem_available" "$buffers" "$cached"
 }
 
@@ -42,5 +42,5 @@ run_host_metrics() {
   local host="${2:?host is required}"
   local log_file="${3:?log file is required}"
 
-  collect_server_metrics_raw | serialize_server_metrics_jsonl "$dt" "$host" >> "$log_file"
+  collect_host_metrics_raw | serialize_host_metrics_jsonl "$dt" "$host" >> "$log_file"
 }
