@@ -1,12 +1,28 @@
 #!/bin/bash
 set -Eeuo pipefail
 
+detect_virtualization() {
+  systemd-detect-virt 2>/dev/null || printf "unknown"
+}
+
+get_balloon() {
+  case "$(detect_virtualization)" in
+    vmware)
+      vmware-toolbox-cmd stat balloon 2>/dev/null || printf "N/A"
+      ;;
+    *)
+      printf "N/A"
+      ;;
+  esac
+}
+
 collect_host_metrics_raw() {
 
   local balloon
   local mem_total mem_free mem_available buffers cached
 
-  balloon="$(vmware-toolbox-cmd stat balloon 2>/dev/null || printf 'N/A')"
+  virt=$(detect_virtualization)
+  balloon="$(get_balloon)"
 
   read -r mem_total mem_free mem_available buffers cached < <(
     awk '
@@ -33,8 +49,8 @@ serialize_host_metrics_jsonl() {
 
   IFS=$'\t' read -r balloon mem_total mem_free mem_available buffers cached
 
-  printf '{"timestamp":"%s","host":"%s","metric_type":"host","balloon":"%s","mem_total":"%s","mem_free":"%s","mem_available":"%s","buffers":"%s","cached":"%s"}\n' \
-    "$dt" "$host" "$balloon" "$mem_total" "$mem_free" "$mem_available" "$buffers" "$cached"
+  printf '{"timestamp":"%s","host":"%s","metric_type":"host","mem_total":"%s","mem_free":"%s","mem_available":"%s","buffers":"%s","cached":"%s","balloon":"%s","virtualization":"%s"}\n' \
+    "$dt" "$host" "$mem_total" "$mem_free" "$mem_available" "$buffers" "$cached" "$balloon" "$virt"
 }
 
 run_host_metrics() {

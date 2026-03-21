@@ -84,14 +84,14 @@ Log filename pattern consists of three parts: `current date`-`hostname`-`metric 
 One file per metric group per day. Files must not mix record types
 
 Where:
-- current date is in `YYYY-MM-DD` format 
+- current date is in `YYYYMMDD` format 
 - hostname is the result of the `hostname -f` command
 - metric type is one of the following values: `process`, `host`, `container`
 
 Examples:
-- `2026-03-08-myhost.domain-process.jsonl`
-- `2026-03-08-myhost.domain-host.jsonl`
-- `2026-03-08-myhost.domain-container.jsonl`
+- `20260308-myhost.domain-host.jsonl`
+- `20260308-myhost.domain-process.jsonl`
+- `20260308-myhost.domain-container.jsonl`
 
 
 ### **Fields names conventions**
@@ -100,7 +100,7 @@ Current schema version: `v1`.
 - All field names in JSONL records must follow a snake_case naming convention.
 - In v1 all fields are are serialized as JSON strings. 
 - Changing types will be on backend level
-- `timestamps` are strings in RFC3339 UTC format
+- `timestamps` are strings in "YYYY-mm-dd HH:MM:SS" format
 - `n`, `pid`, `ppid`, `max_map_count` are integer-like strings
 - `rss`, `vsz`, `mem_total`, `mem_free`, `mem_available`, `buffers`, `cached`, `balloon` are numeric strings in MB unless stated otherwise
 - `mem` and `cpu` are numeric strings representing percent values
@@ -121,6 +121,7 @@ Is it necessary param?:
 - [x] `cached`
 - [ ] `max_map_count` - max maps count on the current server
 - [ ] `balloon`
+- [ ] `virtualization`
 
 #### **process metrics**
 - [x] `rank`: ranked row number. rank of the process by mem utility

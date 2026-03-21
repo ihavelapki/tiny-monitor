@@ -26,7 +26,7 @@ main() {
 
     parse_args "$@"
     validate_args
-    load_env_file
+    load_env_file "$ENV_FILE"
 
     # Get server info
     run_host_metrics "$dt" "$host" "$logdir/$date-$host-host.jsonl"
