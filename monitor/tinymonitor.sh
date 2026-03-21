@@ -7,7 +7,7 @@ SCRIPT_NAME="$(basename "$SCRIPT_PATH")"
 
 readonly PROJECT_LIB="/usr/local/lib/${SCRIPT_NAME}"
 
-source "${PROJECT_LIB}/header.sh"
+source "${PROJECT_LIB}/utils/header.sh"
 source "${PROJECT_LIB}/hostmonitor.sh"
 source "${PROJECT_LIB}/procmonitor.sh"
 
