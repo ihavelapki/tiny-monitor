@@ -27,51 +27,9 @@ EOF
 print_version() {
   printf '%s\n' "$SCRIPT_VERSION"
 }
-timestamp() {
-  date '+%Y-%m-%d %H:%M:%S'
-}
-
-log() {
-  local level="$1"
-  shift
-
-  printf '[ %s ][ %-5s ] %s\n' \
-    "$(timestamp)" \
-    "$level" \
-    "$*"
-}
-
-log_debug() {
-  case "$LOG_LEVEL" in
-    DEBUG)
-    log DEBUG "$@"
-  esac
-}
-
-log_info() {
-  case "$LOG_LEVEL" in
-    DEBUG|INFO)
-    log INFO "$@"
-  esac
-}
-
-log_warn() {
-  case "$LOG_LEVEL" in
-    DEBUG|INFO|WARN)
-    log WARN "$@"
-  esac
-}
-
-log_error() {
-  log ERROR "$@" >&2
-}
-
-die() {
-  log_error "$@"
-  exit 1
-}
 
 parse_args() {
+  DEBUG=0
   DRY_RUN=0
   LOG_FILE=""
   ENV_FILE=""
@@ -132,6 +90,10 @@ parse_args() {
         ;;
     esac
   done
+
+  if [[ "$LOG_LEVEL" == "DEBUG" ]]; then
+    DEBUG=1
+  fi
 }
 
 validate_args() {
