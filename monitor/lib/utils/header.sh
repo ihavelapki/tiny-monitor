@@ -1,0 +1,126 @@
+#!/bin/bash
+
+usage() {
+  cat <<'EOF'
+Usage:
+  tinymonitor [options]
+  tinymonitor -h | --help
+  tinymonitor -v | --version
+
+Examples:
+  tinymonitor --help
+  tinymonitor --version
+  tinymonitor --env-file .env
+  tinymonitor --log-file app.log --env-file .env
+
+Options:
+  -h, --help              Show help
+  -v, --version           Show version
+  -f <logfile>            Path to log file
+  --dry-run, -C           Run in dry-run mode (no changes made)
+  --env-file <path>       Path to .env file
+  --cnt-proc <number>     Number of processes to monitor (default: 10)
+  --log-level <level>     Set log level (default: ERROR)
+EOF
+}
+
+print_version() {
+  printf '%s\n' "$SCRIPT_VERSION"
+}
+
+parse_args() {
+  DEBUG=0
+  DRY_RUN=0
+  LOG_FILE=""
+  ENV_FILE=""
+  CNT_PROC=10
+  LOG_LEVEL="ERROR"
+  SHOW_HELP=0
+  SHOW_VERSION=0
+
+  # 2. Глобальные флаги без action/entity
+  case "${1:-}" in
+    -h|--help)
+      SHOW_HELP=1
+      return 0
+      ;;
+    -v|--version)
+      SHOW_VERSION=1
+      return 0
+      ;;
+  esac
+
+  # 3. Разбираем опции
+  while [[ "$#" -gt 0 ]]; do
+    case "$1" in
+      -h|--help)
+        SHOW_HELP=1
+        shift
+        ;;
+      -v|--version)
+        SHOW_VERSION=1
+        shift
+        ;;
+      -f|--log-file)
+        [[ "$#" -ge 2 ]] || die "option -f requires an argument"
+        LOG_FILE="$2"
+        shift 2
+        ;;
+      --env-file)
+        [[ "$#" -ge 2 ]] || die "option --env-file requires an argument"
+        ENV_FILE="$2"
+        shift 2
+        ;;
+      --cnt-proc)
+        [[ "$#" -ge 2 ]] || die "option --cnt-proc requires an argument"
+        CNT_PROC="$2"
+        shift 2
+        ;;
+      --dry-run|-C)
+        DRY_RUN=1
+        shift
+        ;;
+      --log-level)
+        [[ "$#" -ge 2 ]] || die "option --log-level requires an argument"
+        LOG_LEVEL="$2"
+        shift 2
+        ;;
+      *)
+        die "unknown argument: $1"
+        ;;
+    esac
+  done
+
+  if [[ "$LOG_LEVEL" == "DEBUG" ]]; then
+    DEBUG=1
+  fi
+}
+
+validate_args() {
+  if [[ "$SHOW_HELP" -eq 1 ]]; then
+    usage
+    exit 0
+  fi
+
+  if [[ "$SHOW_VERSION" -eq 1 ]]; then
+    print_version
+    exit 0
+  fi
+}
+
+load_env_file() {
+  local env_file="$1"
+
+  if [[ -f "$env_file" ]]; then 
+    log_info "Loading env file: $env_file"
+    source "$env_file"
+
+    ENVABS="$(realpath "$env_file")"
+    export ENVABS
+
+    log_info "Loaded env file: $ENVABS"
+  else
+    log_warn ".env file not found at: $env_file"
+  fi
+  
+}

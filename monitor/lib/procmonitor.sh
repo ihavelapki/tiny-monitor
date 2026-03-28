@@ -1,64 +1,40 @@
 #!/bin/bash
+set -Eeuo pipefail
 
-export READLINK=$(readlink -f "$0")
-export SCRIPT_DIR=$(dirname "${READLINK}")
-echo "Readlink: ${READLINK}"
-echo "SCRIPT_DIR: ${SCRIPT_DIR}"
+collect_process_metrics_raw() {
+    local cnt="${1:?process count is required}"
+    local awk_script='BEGIN { OFS="\t" } {print NR, $1, $2, $3/1024, $4/1024, $5, $6, $7}'
 
-#source ${SCRIPT_DIR}/utils/header.sh
-# ------------------------------------- output parameters -----------------------------------------------------
-OUTPUT_PARAMS="NUM|DATE|TIME|HOST|PID|PPID|RSS(MB)|VSZ(MB)|MEM|CPU|MMC|MAPS|BALLOON|CMD"
+    case "$cnt" in
+        ''|*[!0-9]*)
+            die "process count must be a positive integer"
+            ;;
+    esac
 
-## ------------------------------------ awk scripts -----------------------------------------------------------
-awk_to_csv='{if (NR > 1) {"wc -l < /proc/"$1"/maps" | getline map; close("wc -l < /proc/"$1"/maps"); printf "%3d|%s|%s|%s|%s|%s|%d|%d|%s|%s|%s|%s|%s|%s\n", NR-1, date, time, host, $1, $2, $3/1024, $4/1024, $5, $6, mmc, map, balloon, $7 }}'
+    [ "$cnt" -gt 0 ] || {
+        die "process count must be greater than 0"
+    }
 
-awk_to_json='{if (NR > 1) {"wc -l < /proc/"$1"/maps" | getline map; close("wc -l < /proc/"$1"/maps"); printf "{\"N\":\"%3d\",\"DATE\":\"%s\",\"TIME\":\"%s\",\"HOST\":\"%s\",\"PID\":\"%s\",\"PPID\":\"%s\",\"RSS\":\"%d\",\"VSZ\":\"%d\",\"MEM\":\"%s\",\"CPU\":\"%s\",\"MAXMAPCOUNT\":\"%s\",\"MAPS\":\"%s\",\"BALLOON\":\"%s\",\"CMD\":\"%s\"}\n", NR-1, $1, $2, date, time, host, int($3/1024), int($4/1024), $5, $6, mmc, map,  balloon, $7 }}'
-
-## ------------------------------------ main function ---------------------------------------------------------
-getProcesesInfo() {
-    local CNT=$1
-    ps -Ao pid,ppid,rss,vsz,%mem,%cpu,cmd --sort=-%mem | head -n $CNT
+    ps -Ao pid=,ppid=,rss=,vsz=,pmem=,pcpu=,comm= --sort=-pmem \
+      | head -n "$cnt" \
+      | awk "$awk_script"
 }
 
-## ------------------------------------ setup default parameters ----------------------------------------------
-PROCESSCOUNT=$(( "${PROCESSCOUNT:-10}"+1 ))
-TESTRUN="${TESTRUN:-false}"
-OUTTYPE="${OUTTYPE:-csv}"
-if [ "$OUTTYPE" = "json" ]; then
-  awk_script="$awk_to_json"
-else
-  awk_script="$awk_to_csv"
-fi
+serialize_process_metrics_jsonl() {
+    local dt="${1:?timestamp is required}"
+    local host="${2:?host is required}"
 
-## ------------------------------------ setup variables -------------------------------------------------------
-start_time=$(date +%s.%N)
-user="$(whoami)"
-host="$(hostname)"
-time="$(date '+%H:%M:%S')"
-date="$(date '+%Y-%m-%d')"
-logname="${date}_${host}_tinymonitor.csv"
-basedir="/home/${user}/tinymonitor"
-logdir="$basedir/logs"
-outfile="$logdir/$logname"
-mmc=$(< /proc/sys/vm/max_map_count)
-balloon="$(vmware-toolbox-cmd stat balloon 2>/dev/null || echo "N/A")"
+    while IFS=$'\t' read -r rank pid ppid rss vsz mem_percent cpu_percent command; do
+        printf '{"rank":"%s","timestamp":"%s","host":"%s","metric_type":"process","pid":"%s","ppid":"%s","rss_kb":"%s","vsz_kb":"%s","mem_percent":"%s","cpu_percent":"%s","command":"%s"}\n' \
+            "$rank" "$dt" "$host" "$pid" "$ppid" "$rss" "$vsz" "$mem_percent" "$cpu_percent" "$command"
+    done
+}
 
-if [ "$TESTRUN" = "true" ]; then
-  mid_time=$(date +%s.%N)
-  elapsed=$(echo "($mid_time - $start_time) * 1000" | bc)
-  echo "Операция заняла ${elapsed} мс"
-  echo -e "${user}\n${host}\n${logname}\n${basedir}\n${logdir}\n${outfile}\n"	
-
-  echo "${OUTPUT_PARAMS}" 
-  
-  getProcesesInfo $PROCESSCOUNT | awk -v date="$date" -v time="$time" -v mmc="$mmc" -v balloon="$balloon" -v host="$host" "$awk_script"
-  end_time=$(date +%s.%N)
-  elapsed=$(echo "($end_time - $mid_time) * 1000" | bc)
-  echo "Операция заняла ${elapsed} мс"
-else
-  mkdir -p "$logdir"
-  if [[ "$OUTTYPE" = "csv" && ! -f "$outfile" ]]; then
-    echo "${OUTPUT_PARAMS}" >> "$outfile"
-  fi
-  getProcesesInfo $PROCESSCOUNT | awk -v date="$date" -v time="$time" -v mmc="$mmc" -v balloon="$balloon" -v host="host" "$awk_script" >> "$outfile"
-fi
+run_process_metrics() {
+    local dt="${1:?timestamp is required}"
+    local host="${2:?host is required}"
+    local cnt_proc="${3:?process count is required}"
+    local log_file="${4:?log file is required}"
+    
+    collect_process_metrics_raw "$cnt_proc" | serialize_process_metrics_jsonl "$dt" "$host" >> "$log_file"
+}

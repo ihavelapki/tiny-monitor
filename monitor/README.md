@@ -69,9 +69,9 @@ Example:
 ```
 - log for process metrics
 ```jsonl
-{"rang":"1","timestamp":"2026-03-03T23:59:02Z","host":"myhost.domain","pid":"414017","ppid":"413993","rss":"2107","vsz":"14710","mem":"13.1","cpu":"0.7","cmd":"java-1.jar"}
-{"rang":"2","timestamp":"2026-03-03T23:59:02Z","host":"myhost.domain","pid":"4002481","ppid":"4002460","rss":"1433","vsz":"9541","mem":"8.9","cpu":"0.5","cmd":"java-2.jar"}
-{"rang":"3","timestamp":"2026-03-03T23:59:02Z","host":"myhost.domain","pid":"3138820","ppid":"3138799","rss":"933","vsz":"7827","mem":"5.8","cpu":"1.5","cmd":"java-3.jar"}
+{"rank":"1","timestamp":"2026-03-03T23:59:02Z","host":"myhost.domain","pid":"414017","ppid":"413993","rss":"2107","vsz":"14710","mem":"13.1","cpu":"0.7","cmd":"java-1.jar"}
+{"rank":"2","timestamp":"2026-03-03T23:59:02Z","host":"myhost.domain","pid":"4002481","ppid":"4002460","rss":"1433","vsz":"9541","mem":"8.9","cpu":"0.5","cmd":"java-2.jar"}
+{"rank":"3","timestamp":"2026-03-03T23:59:02Z","host":"myhost.domain","pid":"3138820","ppid":"3138799","rss":"933","vsz":"7827","mem":"5.8","cpu":"1.5","cmd":"java-3.jar"}
 ```
 - log for docker containers metrics
 ```jsonl
@@ -84,14 +84,14 @@ Log filename pattern consists of three parts: `current date`-`hostname`-`metric 
 One file per metric group per day. Files must not mix record types
 
 Where:
-- current date is in `YYYY-MM-DD` format 
+- current date is in `YYYYMMDD` format 
 - hostname is the result of the `hostname -f` command
 - metric type is one of the following values: `process`, `host`, `container`
 
 Examples:
-- `2026-03-08-myhost.domain-process.jsonl`
-- `2026-03-08-myhost.domain-host.jsonl`
-- `2026-03-08-myhost.domain-container.jsonl`
+- `20260308-myhost.domain-host.jsonl`
+- `20260308-myhost.domain-process.jsonl`
+- `20260308-myhost.domain-container.jsonl`
 
 
 ### **Fields names conventions**
@@ -100,7 +100,7 @@ Current schema version: `v1`.
 - All field names in JSONL records must follow a snake_case naming convention.
 - In v1 all fields are are serialized as JSON strings. 
 - Changing types will be on backend level
-- `timestamps` are strings in RFC3339 UTC format
+- `timestamps` are strings in "YYYY-mm-dd HH:MM:SS" format
 - `n`, `pid`, `ppid`, `max_map_count` are integer-like strings
 - `rss`, `vsz`, `mem_total`, `mem_free`, `mem_available`, `buffers`, `cached`, `balloon` are numeric strings in MB unless stated otherwise
 - `mem` and `cpu` are numeric strings representing percent values
@@ -121,9 +121,10 @@ Is it necessary param?:
 - [x] `cached`
 - [ ] `max_map_count` - max maps count on the current server
 - [ ] `balloon`
+- [ ] `virtualization`
 
 #### **process metrics**
-- [x] `rang`: Ranged row number. Rang of the process by mem utility
+- [x] `rank`: ranked row number. rank of the process by mem utility
 - [x] `timestamp`: Timestamp of the main call
 - [x] `host`: FQDN of the current host
 - [x] `metric_type`: Type of metrics file. Always equal `process` in process metrics log files
