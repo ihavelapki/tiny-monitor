@@ -4,16 +4,18 @@ import { Navigation } from '../../widgets/navigation';
 
 export const AppLayout = () => {
   return (
-    <div>
-      <header>
-        <h1>TinyMonitor</h1>
-      </header>
+    <div className="app-layout">
+      <aside className="app-sidebar">
+        <div className="app-sidebar__header">
+          <h1 className="app-sidebar__title">TinyMonitor</h1>
+        </div>
 
-      <Navigation />
+        <Navigation />
+      </aside>
 
-      <section>
+      <div className="app-content">
         <Outlet />
-      </section>
+      </div>
     </div>
   );
 };
