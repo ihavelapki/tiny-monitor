@@ -1,13 +1,12 @@
+import { PageHeader } from "../../../shared/ui/page-header";
+
 export const HomePage = () => {
   return (
     <main className="page">
-      <div className="page__header">
-        <h1 className="page__title">Home</h1>
-        <p className="page__description">
-          Welcome to TinyMonitor frontend. This page can be used as an overview dashboard for the
-          monitoring system.
-        </p>
-      </div>
+      <PageHeader
+        title="Home"
+        description="Welcome to TinyMonitor frontend. This page can be used as an overview dashboard."
+      />
 
       <section className="page__section">
         <h2 className="page__section-title">System overview</h2>

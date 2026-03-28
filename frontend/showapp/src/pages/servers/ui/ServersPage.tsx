@@ -1,13 +1,12 @@
+import { PageHeader } from '../../../shared/ui/page-header';
+
 export const ServersPage = () => {
   return (
     <main className="page">
-      <div className="page__header">
-        <h1 className="page__title">Servers</h1>
-        <p className="page__description">
-          This page will show the list of monitored servers, their status, and short technical
-          details.
-        </p>
-      </div>
+      <PageHeader
+        title="Servers"
+        description="List of monitored servers and their status."
+      />
 
       <section className="page__section">
         <h2 className="page__section-title">Server list</h2>
