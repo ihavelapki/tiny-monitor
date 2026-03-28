@@ -1,14 +1,9 @@
 import '../shared/styles/App.css'
 
-import { HomePage } from '../pages/home';
-// import { ServersPage } from '../pages/servers';
+import { AppRouter } from './router';
 
-function App() {
+export const App = () => {
+  return <AppRouter />;
+};
 
-  return (
-      <HomePage/>  
-  )
-}
-
-export default App
 
