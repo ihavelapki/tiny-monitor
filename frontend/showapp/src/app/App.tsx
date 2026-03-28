@@ -1,12 +1,14 @@
 import '../shared/styles/App.css'
 
-import Homepage from '../pages/Home'
+import { HomePage } from '../pages/home';
+// import { ServersPage } from '../pages/servers';
 
 function App() {
 
   return (
-      <Homepage/>  
+      <HomePage/>  
   )
 }
 
 export default App
+
