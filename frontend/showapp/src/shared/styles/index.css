@@ -247,3 +247,88 @@ p {
     padding: 20px 16px;
   }
 }
+
+.server-card {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  height: 100%;
+}
+
+.server-card__header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.server-card__title {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.server-card__meta {
+  margin: 0;
+  color: var(--color-text-secondary);
+  word-break: break-word;
+}
+
+.server-card__section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.server-card__section-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.server-card__details {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  color: var(--color-text-secondary);
+}
+
+.server-card__details p {
+  margin: 0;
+}
+
+.server-card__disk-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.server-card__disk-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background-color: var(--color-bg-surface-muted);
+  padding: 12px;
+}
+
+.server-card__disk-name {
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.server-card__disk-details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  color: var(--color-text-secondary);
+}
+
+.server-card__disk-details span {
+  display: inline-flex;
+  align-items: center;
+}
