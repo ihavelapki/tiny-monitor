@@ -21,7 +21,7 @@ export const mockServerSnapshot: ServerSnapshot = {
         },
         hardware: {
           memory: {
-            totalBytes: '16764985344',
+            totalBytes: 16764985344,
             swap: {
                 total: '2G',
                 free: '1.4G',
@@ -86,7 +86,7 @@ export const mockServerSnapshot: ServerSnapshot = {
         },
         hardware: {
           memory: {
-            totalBytes: '16764985344',
+            totalBytes: 16764985344,
             swap: {
                 total: '2G',
                 free: '1.4G',
@@ -151,7 +151,7 @@ export const mockServerSnapshot: ServerSnapshot = {
         },
         hardware: {
           memory: {
-            totalBytes: '16764985344',
+            totalBytes: 16764985344,
             swap: {
                 total: '2G',
                 free: '1.4G',

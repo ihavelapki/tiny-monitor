@@ -1,5 +1,6 @@
 import { mockHostMetrics } from '../../../entities/host-metric';
 import { PageHeader } from '../../../shared/ui/page-header';
+import { formatBytes } from '../../../shared/lib/formatBytes';
 
 export const MetricsPage = () => {
   const { environment, project, from, to, step, series } = mockHostMetrics;
@@ -99,8 +100,8 @@ export const MetricsPage = () => {
                       <h4>{point.timestamp}</h4>
                       <p>CPU usage: {point.cpuUsagePercent}%</p>
                       <p>Memory usage: {point.memoryUsagePercent}%</p>
-                      <p>Memory used: {point.memoryUsedBytes ?? 'unknown'}</p>
-                      <p>Memory available: {point.memoryAvailableBytes ?? 'unknown'}</p>
+                      <p>Memory used: {formatBytes(point.memoryUsedBytes)}</p>
+                      <p>Memory available: {formatBytes(point.memoryAvailableBytes)}</p>
                     </div>
                   ))}
                 </div>

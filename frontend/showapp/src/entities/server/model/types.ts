@@ -32,7 +32,7 @@ export type ServerOsInfo = {
 
 export type ServerHardwareInfo = {
   memory: {
-    totalBytes: string;
+    totalBytes: number;
     swap?: ServerSwapInfo;
     balloonDriverInstalled?: boolean;
   };

@@ -1,5 +1,6 @@
 import { mockServerSnapshot } from '../../../entities/server';
 import { PageHeader } from '../../../shared/ui/page-header';
+import { formatBytes } from '../../../shared/lib/formatBytes';
 
 export const ServersPage = () => {
   const { environment, project, timestamp, servers } = mockServerSnapshot;
@@ -72,7 +73,7 @@ export const ServersPage = () => {
                   <h4 className="server-card__section-title">Hardware</h4>
                   <div className="server-card__details">
                     <p>CPU count: {cpuCount}</p>
-                    <p>Memory total: {memory.totalBytes}</p>
+                    <p>Memory total: {formatBytes(memory.totalBytes)}</p>
                     <p>Swap enabled: {swap?.enabled ? 'yes' : 'no'}</p>
                     <p>Swap total: {swap?.total ?? 'unknown'}</p>
                     <p>Swap free: {swap?.free ?? 'unknown'}</p>
