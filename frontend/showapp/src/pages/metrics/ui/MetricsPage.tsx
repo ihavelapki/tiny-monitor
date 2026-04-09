@@ -1,6 +1,7 @@
 import { mockHostMetrics } from '../../../entities/host-metric';
 import { PageHeader } from '../../../shared/ui/page-header';
 import { formatBytes } from '../../../shared/lib/formatBytes';
+import { Button } from '../../../shared/ui/button';
 
 export const MetricsPage = () => {
   const { environment, project, from, to, step, series } = mockHostMetrics;
@@ -14,6 +15,12 @@ export const MetricsPage = () => {
       <PageHeader
         title="Metrics"
         description="CPU and memory metrics for selected hosts in the current project."
+        actions={
+          <>
+            <Button>Refresh</Button>
+            <Button>Select all hosts</Button>
+          </>
+        }
       />
 
       <section className="page__section">

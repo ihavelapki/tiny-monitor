@@ -159,10 +159,26 @@ p {
   gap: var(--layout-gap);
 }
 
-.page__header {
+.page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.page-header__main {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  min-width: 0;
+}
+
+.page-header__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
 .page__title {
@@ -331,4 +347,27 @@ p {
 .server-card__disk-details span {
   display: inline-flex;
   align-items: center;
+}
+
+
+.button {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background-color: var(--color-bg-surface);
+  color: var(--color-text-primary);
+  padding: 10px 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.button:hover {
+  background-color: var(--color-nav-hover);
+}
+
+.button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
 }
