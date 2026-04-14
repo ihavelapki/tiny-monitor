@@ -15,6 +15,7 @@ export type {
   ServerSystemInfo,
 } from './model/types';
 
+export { ServerCard } from './ui/ServerCard';
 export { getServerSnapshot } from './api/getServerSnapshot';
 export { mockServerSnapshot } from './mock/servers';
 export { mockServerSnapshots } from './mock/servers';
