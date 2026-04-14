@@ -371,3 +371,25 @@ p {
   cursor: not-allowed;
   opacity: 0.6;
 }
+.server-scope-filters {
+  padding: 20px;
+}
+
+.server-scope-filters__row {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.server-scope-filters__group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 180px;
+}
+
+.server-scope-filters__group--hosts {
+  flex: 1 1 320px;
+  min-width: 280px;
+}
