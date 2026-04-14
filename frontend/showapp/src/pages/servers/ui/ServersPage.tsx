@@ -1,20 +1,17 @@
 import { useEffect, useState } from 'react';
-import { ServerCard } from '../../../entities/server';
-import { getServerSnapshot } from '../../../entities/server';
+
+import {
+  getServerScopeOptions,
+  getServerSnapshot,
+  mockServerSnapshots,
+  ServerCard,
+} from '../../../entities/server';
 import type { ServerSnapshot } from '../../../entities/server';
 import {
   ServerScopeFilters,
   useServerScopeFilters,
 } from '../../../features/server-scope-filters';
 import { PageHeader } from '../../../shared/ui/page-header';
-
-const environmentOptions = ['dev', 'test', 'stage', 'prod'];
-const projectOptions = ['default', 'platform'];
-
-const hostsByScope: Record<string, string[]> = {
-  'dev:default': ['master', 'worker', 'database'],
-  'test:platform': ['master'],
-};
 
 export const ServersPage = () => {
   const {
@@ -28,8 +25,11 @@ export const ServersPage = () => {
 
   const [snapshot, setSnapshot] = useState<ServerSnapshot | null>(null);
 
-  const scopeKey = `${filters.environment}:${filters.project}`;
-  const hostOptions = hostsByScope[scopeKey] ?? [];
+  const { environmentOptions, projectOptions, hostOptions } = getServerScopeOptions({
+    snapshots: mockServerSnapshots,
+    environment: filters.environment,
+    project: filters.project,
+  });
 
   useEffect(() => {
     const loadSnapshot = async () => {
@@ -46,7 +46,7 @@ export const ServersPage = () => {
         title="Servers"
         description="Inventory and technical details for monitored servers in the selected scope."
       />
-
+      <h2 className="page__section-title">Filters</h2>
       <ServerScopeFilters
         environment={filters.environment}
         project={filters.project}

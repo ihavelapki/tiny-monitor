@@ -20,3 +20,5 @@ export { getServerSnapshot } from './api/getServerSnapshot';
 export { mockServerSnapshot } from './mock/servers';
 export { mockServerSnapshots } from './mock/servers';
 export { filterServerSnapshot } from './lib/filterServerSnapshot';
+export { getServerScopeOptions } from './lib/getServerScopeOptions';
+export type { ServerScopeOptions } from './lib/getServerScopeOptions';

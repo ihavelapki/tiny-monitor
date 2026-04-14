@@ -1,3 +1,5 @@
+import { useState } from 'react';
+
 type ServerFiltersProps = {
   environment: string;
   project: string;
@@ -25,6 +27,8 @@ export const ServerScopeFilters = ({
   onSelectAllHosts,
   onClearHosts,
 }: ServerFiltersProps) => {
+  const [isHostsOpen, setIsHostsOpen] = useState(false);
+
   const handleHostToggle = (host: string) => {
     const isSelected = selectedHosts.includes(host);
 
@@ -35,6 +39,13 @@ export const ServerScopeFilters = ({
 
     onHostsChange([...selectedHosts, host]);
   };
+
+  const hostsLabel =
+    selectedHosts.length === 0
+      ? 'No hosts selected'
+      : selectedHosts.length === hostOptions.length
+        ? 'All hosts selected'
+        : selectedHosts.join(', ');
 
   return (
     <div className="surface-card server-scope-filters">
@@ -78,35 +89,48 @@ export const ServerScopeFilters = ({
         </div>
 
         <div className="server-scope-filters__group server-scope-filters__group--hosts">
-          <div className="filter-field__label-row">
-            <span className="filter-field__label">Hosts</span>
+          <label className="filter-field__label">Hosts</label>
 
-            <div className="filter-field__actions">
-              <button type="button" className="button" onClick={onSelectAllHosts}>
-                Select all
-              </button>
+          <div className="hosts-dropdown">
+            <button
+              type="button"
+              className="filter-field__control hosts-dropdown__trigger"
+              onClick={() => setIsHostsOpen((prev) => !prev)}
+            >
+              <span className="hosts-dropdown__value">{hostsLabel}</span>
+              <span className="hosts-dropdown__arrow">{isHostsOpen ? '▲' : '▼'}</span>
+            </button>
 
-              <button type="button" className="button" onClick={onClearHosts}>
-                Clear
-              </button>
-            </div>
-          </div>
+            {isHostsOpen && (
+              <div className="hosts-dropdown__menu">
+                <div className="hosts-dropdown__actions">
+                  <button type="button" className="button" onClick={onSelectAllHosts}>
+                    Select all
+                  </button>
 
-          <div className="hosts-selector">
-            {hostOptions.map((host) => {
-              const isChecked = selectedHosts.includes(host);
+                  <button type="button" className="button" onClick={onClearHosts}>
+                    Clear
+                  </button>
+                </div>
 
-              return (
-                <label key={host} className="hosts-selector__item">
-                  <input
-                    type="checkbox"
-                    checked={isChecked}
-                    onChange={() => handleHostToggle(host)}
-                  />
-                  <span>{host}</span>
-                </label>
-              );
-            })}
+                <div className="hosts-dropdown__list">
+                  {hostOptions.map((host) => {
+                    const isChecked = selectedHosts.includes(host);
+
+                    return (
+                      <label key={host} className="hosts-dropdown__item">
+                        <input
+                          type="checkbox"
+                          checked={isChecked}
+                          onChange={() => handleHostToggle(host)}
+                        />
+                        <span>{host}</span>
+                      </label>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
