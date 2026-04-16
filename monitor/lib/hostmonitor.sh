@@ -37,7 +37,7 @@ collect_host_metrics_raw() {
     ' /proc/meminfo
   )
 
-  printf '%s\t%s\t%s\t%s\t%s\t%s\n' \
+  printf '%s\t%s\t%s\t%s\t%s\t%s\t%s\n' \
     "$balloon" "$virt" "$mem_total" "$mem_free" "$mem_available" "$buffers" "$cached"
 }
 
