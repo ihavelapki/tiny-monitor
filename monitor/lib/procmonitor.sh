@@ -3,7 +3,7 @@ set -Eeuo pipefail
 
 collect_process_metrics_raw() {
     local cnt="${1:?process count is required}"
-    local awk_script='BEGIN { OFS="\t" } {print NR, $1, $2, $3/1024, $4/1024, $5, $6, $7}'
+    local awk_script='BEGIN { OFS="\t" } {print NR, $1, $2, $3, $4, $5, $6, $7}'
 
     case "$cnt" in
         ''|*[!0-9]*)
@@ -25,7 +25,7 @@ serialize_process_metrics_jsonl() {
     local host="${2:?host is required}"
 
     while IFS=$'\t' read -r rank pid ppid rss vsz mem_percent cpu_percent command; do
-        printf '{"rank":"%s","timestamp":"%s","host":"%s","metric_type":"process","pid":"%s","ppid":"%s","rss_kb":"%s","vsz_kb":"%s","mem_percent":"%s","cpu_percent":"%s","command":"%s"}\n' \
+        printf '{"rank":"%s","timestamp":"%s","host":"%s","metric_type":"process","pid":"%s","ppid":"%s","rss":"%s","vsz":"%s","mem_percent":"%s","cpu_percent":"%s","command":"%s"}\n' \
             "$rank" "$dt" "$host" "$pid" "$ppid" "$rss" "$vsz" "$mem_percent" "$cpu_percent" "$command"
     done
 }
