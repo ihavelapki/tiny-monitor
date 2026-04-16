@@ -1,12 +1,9 @@
 import '../shared/styles/App.css'
 
-import Homepage from '../pages/Home'
+import { AppRouter } from './router';
 
-function App() {
+export const App = () => {
+  return <AppRouter />;
+};
 
-  return (
-      <Homepage/>  
-  )
-}
 
-export default App
