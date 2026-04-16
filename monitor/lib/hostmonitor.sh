@@ -18,7 +18,7 @@ get_balloon() {
 
 collect_host_metrics_raw() {
 
-  local balloon
+  local balloon virt
   local mem_total mem_free mem_available buffers cached
 
   virt=$(detect_virtualization)
@@ -38,16 +38,16 @@ collect_host_metrics_raw() {
   )
 
   printf '%s\t%s\t%s\t%s\t%s\t%s\n' \
-    "$balloon" "$mem_total" "$mem_free" "$mem_available" "$buffers" "$cached"
+    "$balloon" "$virt" "$mem_total" "$mem_free" "$mem_available" "$buffers" "$cached"
 }
 
 serialize_host_metrics_jsonl() {
   local dt="${1:?timestamp is required}"
   local host="${2:?host is required}"
 
-  local balloon mem_total mem_free mem_available buffers cached
+  local balloon virt mem_total mem_free mem_available buffers cached
 
-  IFS=$'\t' read -r balloon mem_total mem_free mem_available buffers cached
+  IFS=$'\t' read -r balloon virt mem_total mem_free mem_available buffers cached
 
   printf '{"timestamp":"%s","host":"%s","metric_type":"host","mem_total":"%s","mem_free":"%s","mem_available":"%s","buffers":"%s","cached":"%s","balloon":"%s","virtualization":"%s"}\n' \
     "$dt" "$host" "$mem_total" "$mem_free" "$mem_available" "$buffers" "$cached" "$balloon" "$virt"
