@@ -1,27 +1,57 @@
+import { getServerScopeOptions, mockServerSnapshots } from '../../../entities/server';
 import { mockHostMetrics } from '../../../entities/host-metric';
+import { MetricsFilters, useMetricsFilters } from '../../../features/metrics-filters';
 import { PageHeader } from '../../../shared/ui/page-header';
-import { formatBytes } from '../../../shared/lib/formatBytes';
-import { Button } from '../../../shared/ui/button';
 
 export const MetricsPage = () => {
-  const { environment, project, from, to, step, series } = mockHostMetrics;
+  const {
+    filters,
+    setEnvironment,
+    setProject,
+    setSelectedHosts,
+    selectAllHosts,
+    clearHosts,
+    setTimeRange,
+  } = useMetricsFilters();
 
-  const selectedHosts = series.map((item) => item.serverAlias);
-  const totalSeries = series.length;
-  const totalPoints = series.reduce((acc, item) => acc + item.points.length, 0);
+  const { environmentOptions, projectOptions, hostOptions } = getServerScopeOptions({
+    snapshots: mockServerSnapshots,
+    environment: filters.scope.environment,
+    project: filters.scope.project,
+  });
+
+  const { from, to } = mockHostMetrics;
+
+  // const selectedHosts = series.map((item) => item.serverAlias);
+  // const totalSeries = series.length;
+  // const totalPoints = series.reduce((acc, item) => acc + item.points.length, 0);
 
   return (
     <main className="page">
       <PageHeader
         title="Metrics"
         description="CPU and memory metrics for selected hosts in the current project."
-        actions={
-          <>
-            <Button>Refresh</Button>
-            <Button>Select all hosts</Button>
-          </>
-        }
       />
+
+      <section className="page__section">
+        <h2 className="page__section-title">Metrics scope</h2>
+
+        <MetricsFilters
+          environment={filters.scope.environment}
+          project={filters.scope.project}
+          selectedHosts={filters.scope.selectedHosts}
+          timeRange={filters.timeRange}
+          environmentOptions={environmentOptions}
+          projectOptions={projectOptions}
+          hostOptions={hostOptions}
+          onEnvironmentChange={setEnvironment}
+          onProjectChange={setProject}
+          onHostsChange={setSelectedHosts}
+          onSelectAllHosts={() => selectAllHosts(hostOptions)}
+          onClearHosts={clearHosts}
+          onTimeRangeChange={setTimeRange}
+        />
+      </section>
 
       <section className="page__section">
         <h2 className="page__section-title">Request overview</h2>
@@ -29,35 +59,44 @@ export const MetricsPage = () => {
         <div className="surface-grid">
           <div className="surface-card">
             <h3>Environment</h3>
-            <p>{environment}</p>
+            <p>{filters.scope.environment}</p>
           </div>
 
           <div className="surface-card">
             <h3>Project</h3>
-            <p>{project}</p>
+            <p>{filters.scope.project}</p>
           </div>
 
+          {/* <div className="surface-card">
+            <h3>Selected hosts</h3>
+            <p>
+              {filters.scope.selectedHosts.length > 0
+                ? filters.scope.selectedHosts.join(', ')
+                : 'none'}
+            </p>
+          </div> */}
+
+          {/* <div className="surface-card">
+            <h3>Time range</h3>
+            <p>{filters.timeRange}</p>
+          </div> */}
+
           <div className="surface-card">
-            <h3>From</h3>
+            <h3>Response from</h3>
             <p>{from}</p>
           </div>
 
           <div className="surface-card">
-            <h3>To</h3>
+            <h3>Response to</h3>
             <p>{to}</p>
           </div>
 
-          <div className="surface-card">
+          {/* <div className="surface-card">
             <h3>Step</h3>
             <p>{step}</p>
-          </div>
+          </div> */}
 
-          <div className="surface-card">
-            <h3>Selected hosts</h3>
-            <p>{selectedHosts.join(', ')}</p>
-          </div>
-
-          <div className="surface-card">
+          {/* <div className="surface-card">
             <h3>Total series</h3>
             <p>{totalSeries}</p>
           </div>
@@ -65,7 +104,7 @@ export const MetricsPage = () => {
           <div className="surface-card">
             <h3>Total points</h3>
             <p>{totalPoints}</p>
-          </div>
+          </div> */}
         </div>
       </section>
 
@@ -89,7 +128,7 @@ export const MetricsPage = () => {
         </div>
       </section>
 
-      <section className="page__section">
+      {/* <section className="page__section">
         <h2 className="page__section-title">Metric series preview</h2>
 
         <div className="page__section">
@@ -116,7 +155,7 @@ export const MetricsPage = () => {
             </article>
           ))}
         </div>
-      </section>
+      </section> */}
     </main>
   );
 };

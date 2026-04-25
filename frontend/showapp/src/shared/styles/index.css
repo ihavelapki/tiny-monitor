@@ -452,3 +452,30 @@ p {
   align-items: center;
   gap: 8px;
 }
+
+
+.metrics-filters {
+  padding: 20px;
+}
+
+.metrics-filters__row {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.metrics-filters__scope {
+  flex: 1 1 640px;
+  min-width: 320px;
+}
+
+.metrics-filters__time-range {
+  flex: 0 0 220px;
+}
+
+.metrics-filters__group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
