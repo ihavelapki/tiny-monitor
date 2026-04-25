@@ -1,3 +1,6 @@
+import type { TimeRangeOption } from "../../../features/time-range-filter";
+import type { ServerScopeQuery } from "../../server";
+
 export type HostMetricPoint = {
   timestamp: string;
   cpuUsagePercent: number;
@@ -18,4 +21,9 @@ export type HostMetricsResponse = {
   to: string;
   step: string;
   series: HostMetricSeries[];
+};
+
+export type HostMetricsQuery = {
+  serverScope: ServerScopeQuery;
+  timeRange: TimeRangeOption;
 };
