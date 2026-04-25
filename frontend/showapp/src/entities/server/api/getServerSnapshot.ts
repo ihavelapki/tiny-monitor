@@ -1,15 +1,9 @@
 import { filterServerSnapshot } from '../lib/filterServerSnapshot';
 import { mockServerSnapshots } from '../mock/servers';
-import type { ServerSnapshot } from '../model/types';
-
-type GetServerSnapshotQuery = {
-  environment: string;
-  project: string;
-  selectedHosts: string[];
-};
+import type { ServerSnapshot, ServerScopeQuery } from '../model/types';
 
 export const getServerSnapshot = async (
-  query: GetServerSnapshotQuery,
+  query: ServerScopeQuery,
 ): Promise<ServerSnapshot | null> => {
   return filterServerSnapshot(mockServerSnapshots, query);
 };
