@@ -1,10 +1,11 @@
 from fastapi import FastAPI
-
+from app.core.config import settings
 
 def create_app() -> FastAPI:
     app = FastAPI(
-        title="TinyMonitor Backend",
-        version="0.1.0",
+        title=settings.PROJECT_NAME,
+        version=settings.VERSION,
+        root_path=settings.ROOT_PATH
     )
 
     @app.get("/")
