@@ -10,6 +10,7 @@ export type {
   ServerNetworkInfo,
   ServerOsInfo,
   ServerSnapshot,
+  ServerScopeQuery,
   ServerSoftwareInfo,
   ServerSwapInfo,
   ServerSystemInfo,

@@ -9,6 +9,12 @@ export type ServerSnapshot = {
   servers: ServerInfo[];
 };
 
+export type ServerScopeQuery = {
+  environment: string;
+  project: string;
+  selectedHosts: string[];
+};
+
 export type ServerInfo = {
   alias: string;
   hostname: string;

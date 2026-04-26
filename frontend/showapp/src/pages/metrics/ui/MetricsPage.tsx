@@ -1,122 +1,175 @@
-import { mockHostMetrics } from '../../../entities/host-metric';
+import { useEffect, useState } from 'react';
+
+import { getHostMetrics } from '../../../entities/host-metric';
+import type { HostMetricsResponse } from '../../../entities/host-metric';
+import { getServerScopeOptions, mockServerSnapshots } from '../../../entities/server';
+import { MetricsFilters, useMetricsFilters } from '../../../features/metrics-filters';
 import { PageHeader } from '../../../shared/ui/page-header';
-import { formatBytes } from '../../../shared/lib/formatBytes';
-import { Button } from '../../../shared/ui/button';
+import { HostMetricChart } from '../../../entities/host-metric';
 
 export const MetricsPage = () => {
-  const { environment, project, from, to, step, series } = mockHostMetrics;
+  const {
+    filters,
+    setEnvironment,
+    setProject,
+    setSelectedHosts,
+    selectAllHosts,
+    clearHosts,
+    setTimeRange,
+  } = useMetricsFilters();
 
-  const selectedHosts = series.map((item) => item.serverAlias);
-  const totalSeries = series.length;
-  const totalPoints = series.reduce((acc, item) => acc + item.points.length, 0);
+  const [metrics, setMetrics] = useState<HostMetricsResponse | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  const { environmentOptions, projectOptions, hostOptions } = getServerScopeOptions({
+    snapshots: mockServerSnapshots,
+    environment: filters.scope.environment,
+    project: filters.scope.project,
+  });
+
+  useEffect(() => {
+    const loadMetrics = async () => {
+      setIsLoading(true);
+      setErrorMessage(null);
+
+      try {
+        const result = await getHostMetrics({
+          serverScope: {
+            environment: filters.scope.environment,
+            project: filters.scope.project,
+            selectedHosts: filters.scope.selectedHosts,
+          },
+          timeRange: filters.timeRange,
+        });
+
+        setMetrics(result);
+      } catch {
+        setMetrics(null);
+        setErrorMessage('Failed to load host metrics.');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadMetrics();
+  }, [filters]);
+
+  const totalSeries = metrics?.series.length ?? 0;
+  const totalPoints =
+    metrics?.series.reduce((acc, item) => acc + item.points.length, 0) ?? 0;
 
   return (
     <main className="page">
       <PageHeader
         title="Metrics"
         description="CPU and memory metrics for selected hosts in the current project."
-        actions={
-          <>
-            <Button>Refresh</Button>
-            <Button>Select all hosts</Button>
-          </>
-        }
       />
 
       <section className="page__section">
-        <h2 className="page__section-title">Request overview</h2>
+        <h2 className="page__section-title">Metrics scope</h2>
 
-        <div className="surface-grid">
-          <div className="surface-card">
-            <h3>Environment</h3>
-            <p>{environment}</p>
-          </div>
-
-          <div className="surface-card">
-            <h3>Project</h3>
-            <p>{project}</p>
-          </div>
-
-          <div className="surface-card">
-            <h3>From</h3>
-            <p>{from}</p>
-          </div>
-
-          <div className="surface-card">
-            <h3>To</h3>
-            <p>{to}</p>
-          </div>
-
-          <div className="surface-card">
-            <h3>Step</h3>
-            <p>{step}</p>
-          </div>
-
-          <div className="surface-card">
-            <h3>Selected hosts</h3>
-            <p>{selectedHosts.join(', ')}</p>
-          </div>
-
-          <div className="surface-card">
-            <h3>Total series</h3>
-            <p>{totalSeries}</p>
-          </div>
-
-          <div className="surface-card">
-            <h3>Total points</h3>
-            <p>{totalPoints}</p>
-          </div>
-        </div>
+        <MetricsFilters
+          environment={filters.scope.environment}
+          project={filters.scope.project}
+          selectedHosts={filters.scope.selectedHosts}
+          timeRange={filters.timeRange}
+          environmentOptions={environmentOptions}
+          projectOptions={projectOptions}
+          hostOptions={hostOptions}
+          onEnvironmentChange={setEnvironment}
+          onProjectChange={setProject}
+          onHostsChange={setSelectedHosts}
+          onSelectAllHosts={() => selectAllHosts(hostOptions)}
+          onClearHosts={clearHosts}
+          onTimeRangeChange={setTimeRange}
+        />
       </section>
 
-      <section className="page__section">
-        <h2 className="page__section-title">Chart placeholders</h2>
+      {isLoading && <div className="empty-state">Loading metrics...</div>}
 
-        <div className="page__section">
-          <div className="surface-card">
-            <h3>CPU usage</h3>
-            <div className="empty-state">
-              CPU chart will be rendered here from the selected host series.
-            </div>
-          </div>
+      {errorMessage && <div className="empty-state">{errorMessage}</div>}
 
-          <div className="surface-card">
-            <h3>Memory usage</h3>
-            <div className="empty-state">
-              Memory chart will be rendered here from the selected host series.
-            </div>
-          </div>
-        </div>
-      </section>
+      {!isLoading && !errorMessage && (
+        <>
+          <section className="page__section">
+            <h2 className="page__section-title">Charts</h2>
 
-      <section className="page__section">
-        <h2 className="page__section-title">Metric series preview</h2>
-
-        <div className="page__section">
-          {series.map((hostSeries) => (
-            <article key={hostSeries.serverAlias} className="surface-card">
+            {!metrics || metrics.series.length === 0 ? (
+              <div className="empty-state">No chart data for the current filters.</div>
+            ) : (
               <div className="page__section">
-                <div>
-                  <h3>{hostSeries.serverAlias}</h3>
-                  <p>Points: {hostSeries.points.length}</p>
-                </div>
+                <HostMetricChart
+                  title="CPU usage"
+                  series={metrics.series}
+                  metricKey="cpuUsagePercent"
+                />
 
-                <div className="surface-grid">
-                  {hostSeries.points.map((point) => (
-                    <div key={point.timestamp} className="surface-card surface-card--muted">
-                      <h4>{point.timestamp}</h4>
-                      <p>CPU usage: {point.cpuUsagePercent}%</p>
-                      <p>Memory usage: {point.memoryUsagePercent}%</p>
-                      <p>Memory used: {formatBytes(point.memoryUsedBytes)}</p>
-                      <p>Memory available: {formatBytes(point.memoryAvailableBytes)}</p>
-                    </div>
-                  ))}
-                </div>
+                <HostMetricChart
+                  title="Memory usage"
+                  series={metrics.series}
+                  metricKey="memoryUsagePercent"
+                />
               </div>
-            </article>
-          ))}
-        </div>
-      </section>
+            )}
+          </section>
+
+                    <section className="page__section">
+            <h2 className="page__section-title">Request overview</h2>
+
+            <div className="surface-grid">
+              <div className="surface-card">
+                <h3>Environment</h3>
+                <p>{filters.scope.environment}</p>
+              </div>
+
+              <div className="surface-card">
+                <h3>Project</h3>
+                <p>{filters.scope.project}</p>
+              </div>
+
+              <div className="surface-card">
+                <h3>Selected hosts</h3>
+                <p>
+                  {filters.scope.selectedHosts.length > 0
+                    ? filters.scope.selectedHosts.join(', ')
+                    : 'none'}
+                </p>
+              </div>
+
+              <div className="surface-card">
+                <h3>Time range</h3>
+                <p>{filters.timeRange}</p>
+              </div>
+
+              <div className="surface-card">
+                <h3>Response from</h3>
+                <p>{metrics?.from ?? 'unknown'}</p>
+              </div>
+
+              <div className="surface-card">
+                <h3>Response to</h3>
+                <p>{metrics?.to ?? 'unknown'}</p>
+              </div>
+
+              <div className="surface-card">
+                <h3>Step</h3>
+                <p>{metrics?.step ?? 'unknown'}</p>
+              </div>
+
+              <div className="surface-card">
+                <h3>Total series</h3>
+                <p>{totalSeries}</p>
+              </div>
+
+              <div className="surface-card">
+                <h3>Total points</h3>
+                <p>{totalPoints}</p>
+              </div>
+            </div>
+          </section>
+        </>
+      )}
     </main>
   );
 };

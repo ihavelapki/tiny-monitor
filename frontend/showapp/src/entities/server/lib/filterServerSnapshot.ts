@@ -1,14 +1,8 @@
-import type { ServerSnapshot } from '../model/types';
-
-type FilterServerSnapshotParams = {
-  environment: string;
-  project: string;
-  selectedHosts: string[];
-};
+import type { ServerSnapshot, ServerScopeQuery } from '../model/types';
 
 export const filterServerSnapshot = (
   snapshots: ServerSnapshot[],
-  filters: FilterServerSnapshotParams,
+  filters: ServerScopeQuery,
 ): ServerSnapshot | null => {
   const matchingSnapshot = snapshots.find(
     (snapshot) =>
