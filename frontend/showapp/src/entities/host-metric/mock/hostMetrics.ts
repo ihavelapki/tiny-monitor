@@ -1,89 +1,56 @@
-import type { HostMetricsResponse } from '../model/types';
+import type { HostMetricSeries, HostMetricsResponse } from '../model/types';
+
+const createPoints = (
+  startDate: string,
+  count: number,
+  stepMinutes: number,
+  baseCpu: number,
+  baseMemory: number,
+) => {
+  return Array.from({ length: count }, (_, index) => {
+    const timestamp = new Date(startDate);
+    timestamp.setMinutes(timestamp.getMinutes() + index * stepMinutes);
+
+    const cpuWave = Math.sin(index / 3) * 8;
+    const memoryWave = Math.cos(index / 4) * 5;
+
+    const cpuUsagePercent = Math.round(baseCpu + cpuWave + (index % 5));
+    const memoryUsagePercent = Math.round(baseMemory + memoryWave + (index % 3));
+
+    const totalMemoryBytes = 16 * 1024 * 1024 * 1024;
+    const memoryUsedBytes = Math.round((totalMemoryBytes * memoryUsagePercent) / 100);
+    const memoryAvailableBytes = totalMemoryBytes - memoryUsedBytes;
+
+    return {
+      timestamp: timestamp.toISOString(),
+      cpuUsagePercent,
+      memoryUsagePercent,
+      memoryUsedBytes,
+      memoryAvailableBytes,
+    };
+  });
+};
+
+const createSeries = (
+  serverAlias: string,
+  baseCpu: number,
+  baseMemory: number,
+): HostMetricSeries => {
+  return {
+    serverAlias,
+    points: createPoints('2026-04-01T00:00:00Z', 72, 5, baseCpu, baseMemory),
+  };
+};
 
 export const mockHostMetrics: HostMetricsResponse = {
   environment: 'dev',
   project: 'default',
   from: '2026-04-01T00:00:00Z',
-  to: '2026-04-01T01:00:00Z',
+  to: '2026-04-01T06:00:00Z',
   step: '5m',
   series: [
-    {
-      serverAlias: 'master',
-      points: [
-        {
-          timestamp: '2026-04-01T00:00:00Z',
-          cpuUsagePercent: 24,
-          memoryUsagePercent: 52,
-          memoryUsedBytes: 8724152320,
-          memoryAvailableBytes: 8040833024,
-        },
-        {
-          timestamp: '2026-04-01T00:05:00Z',
-          cpuUsagePercent: 27,
-          memoryUsagePercent: 53,
-          memoryUsedBytes: 8891924480,
-          memoryAvailableBytes: 7873060864,
-        },
-        {
-          timestamp: '2026-04-01T00:10:00Z',
-          cpuUsagePercent: 22,
-          memoryUsagePercent: 51,
-          memoryUsedBytes: 8556380160,
-          memoryAvailableBytes: 8208605184,
-        },
-      ],
-    },
-    {
-      serverAlias: 'worker',
-      points: [
-        {
-          timestamp: '2026-04-01T00:00:00Z',
-          cpuUsagePercent: 61,
-          memoryUsagePercent: 71,
-          memoryUsedBytes: 11911823360,
-          memoryAvailableBytes: 4853161984,
-        },
-        {
-          timestamp: '2026-04-01T00:05:00Z',
-          cpuUsagePercent: 57,
-          memoryUsagePercent: 69,
-          memoryUsedBytes: 11576279040,
-          memoryAvailableBytes: 5188706304,
-        },
-        {
-          timestamp: '2026-04-01T00:10:00Z',
-          cpuUsagePercent: 64,
-          memoryUsagePercent: 73,
-          memoryUsedBytes: 12247367680,
-          memoryAvailableBytes: 4517617664,
-        },
-      ],
-    },
-    {
-      serverAlias: 'database',
-      points: [
-        {
-          timestamp: '2026-04-01T00:00:00Z',
-          cpuUsagePercent: 43,
-          memoryUsagePercent: 66,
-          memoryUsedBytes: 11072962560,
-          memoryAvailableBytes: 5692022784,
-        },
-        {
-          timestamp: '2026-04-01T00:05:00Z',
-          cpuUsagePercent: 46,
-          memoryUsagePercent: 67,
-          memoryUsedBytes: 11240734720,
-          memoryAvailableBytes: 5524250624,
-        },
-        {
-          timestamp: '2026-04-01T00:10:00Z',
-          cpuUsagePercent: 41,
-          memoryUsagePercent: 65,
-          memoryUsedBytes: 10905190400,
-          memoryAvailableBytes: 5859803136,
-        },
-      ],
-    },
+    createSeries('master', 25, 52),
+    createSeries('worker', 55, 68),
+    createSeries('database', 42, 61),
   ],
 };

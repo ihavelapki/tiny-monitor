@@ -1,0 +1,1 @@
+export type TimeRangeOption = '15m' | '30m' | '1h' | '6h' | '24h';
