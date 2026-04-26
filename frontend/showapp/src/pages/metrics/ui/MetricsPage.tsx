@@ -4,8 +4,8 @@ import { getHostMetrics } from '../../../entities/host-metric';
 import type { HostMetricsResponse } from '../../../entities/host-metric';
 import { getServerScopeOptions, mockServerSnapshots } from '../../../entities/server';
 import { MetricsFilters, useMetricsFilters } from '../../../features/metrics-filters';
-import { formatBytes } from '../../../shared/lib/formatBytes';
 import { PageHeader } from '../../../shared/ui/page-header';
+import { HostMetricChart } from '../../../entities/host-metric';
 
 export const MetricsPage = () => {
   const {
@@ -93,6 +93,28 @@ export const MetricsPage = () => {
       {!isLoading && !errorMessage && (
         <>
           <section className="page__section">
+            <h2 className="page__section-title">Charts</h2>
+
+            {!metrics || metrics.series.length === 0 ? (
+              <div className="empty-state">No chart data for the current filters.</div>
+            ) : (
+              <div className="page__section">
+                <HostMetricChart
+                  title="CPU usage"
+                  series={metrics.series}
+                  metricKey="cpuUsagePercent"
+                />
+
+                <HostMetricChart
+                  title="Memory usage"
+                  series={metrics.series}
+                  metricKey="memoryUsagePercent"
+                />
+              </div>
+            )}
+          </section>
+
+                    <section className="page__section">
             <h2 className="page__section-title">Request overview</h2>
 
             <div className="surface-grid">
@@ -145,62 +167,6 @@ export const MetricsPage = () => {
                 <p>{totalPoints}</p>
               </div>
             </div>
-          </section>
-
-          <section className="page__section">
-            <h2 className="page__section-title">Chart placeholders</h2>
-
-            <div className="page__section">
-              <div className="surface-card">
-                <h3>CPU usage</h3>
-                <div className="empty-state">
-                  CPU chart will be rendered here from the selected host series.
-                </div>
-              </div>
-
-              <div className="surface-card">
-                <h3>Memory usage</h3>
-                <div className="empty-state">
-                  Memory chart will be rendered here from the selected host series.
-                </div>
-              </div>
-            </div>
-          </section>
-
-          <section className="page__section">
-            <h2 className="page__section-title">Metric series preview</h2>
-
-            {!metrics || metrics.series.length === 0 ? (
-              <div className="empty-state">No metric series match the current filters.</div>
-            ) : (
-              <div className="page__section">
-                {metrics.series.map((hostSeries) => (
-                  <article key={hostSeries.serverAlias} className="surface-card">
-                    <div className="page__section">
-                      <div>
-                        <h3>{hostSeries.serverAlias}</h3>
-                        <p>Points: {hostSeries.points.length}</p>
-                      </div>
-
-                      <div className="surface-grid">
-                        {hostSeries.points.map((point) => (
-                          <div
-                            key={point.timestamp}
-                            className="surface-card surface-card--muted"
-                          >
-                            <h4>{point.timestamp}</h4>
-                            <p>CPU usage: {point.cpuUsagePercent}%</p>
-                            <p>Memory usage: {point.memoryUsagePercent}%</p>
-                            <p>Memory used: {formatBytes(point.memoryUsedBytes)}</p>
-                            <p>Memory available: {formatBytes(point.memoryAvailableBytes)}</p>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </article>
-                ))}
-              </div>
-            )}
           </section>
         </>
       )}
