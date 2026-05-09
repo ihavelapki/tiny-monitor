@@ -10,6 +10,8 @@ class Settings(BaseSettings):
 
     BACKEND_CORS_ORIGINS: list[str] = ["http://localhost:5173"]
 
+    DATABASE_URL: str = "postgresql+asyncpg://tmdbadm:Qwerty123@localhost:5432/tmdb"
+
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",
