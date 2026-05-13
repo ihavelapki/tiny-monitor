@@ -8,6 +8,8 @@ from alembic import context
 from app.db.base import Base
 from app.db import models  # noqa: F401
 
+from app.core.config import settings
+
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
@@ -24,6 +26,7 @@ if config.config_file_name is not None:
 # target_metadata = None
 
 target_metadata = Base.metadata
+config.set_main_option("sqlalchemy.url", settings.sync_database_url)
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:

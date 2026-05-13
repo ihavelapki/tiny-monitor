@@ -1,6 +1,19 @@
 # **tiny-monitor**
 
 ## **Table of contents**
+- [Intro](#intro)
+- [Project Goals](#project-goals)
+- [Architecture Overview](#architecture-overview)
+  - [Features](#features)
+  - [Tech Stack](#tech-stack)
+  - [Project Structure](#project-structure)
+- [Getting Started](#getting-started)
+- [Project Status](#project-status)
+- [License](#license)
+  - [Documentation License](#documentation-license)
+  - [Trademark and Branding](#trademark-and-branding)
+- [Contributing](#contributing)
+
 
 
 ## **Intro**
@@ -43,9 +56,9 @@ TinyMonitor consists of several components:
 
 
 
-## Features
+### **Features**
 
-- Lightweight agent (no heavy dependencies)
+- Lightweight shell agent (no heavy dependencies)
 - Structured logging (JSON Lines)
 - Simple API for metrics access
 - Extensible architecture
@@ -53,24 +66,25 @@ TinyMonitor consists of several components:
 
 ---
 
-## **Tech Stack**
+### **Tech Stack**
 
 - Backend: Python + FastAPI
-    - 
 - Frontend: React + TypeScript + Vite
 - Agent: Bash / Shell
 - DevOps: Docker, GitHub Actions (planned)
 - Storage: JSONL (initially)
 
 
-## Project Structure
+### **Project Structure**
+
 ```
 tinymonitor/
-├── monitor/
-├── backend/
-├── frontend/
-├── docs/
-└── ...
+  ├── analysis/
+  ├── monitor/
+  ├── backend/
+  ├── frontend/
+  ├── documents/
+  └── ...
 ```
 
 
@@ -127,17 +141,13 @@ Please read [CONTRIBUTING.md](./CONTRIBUTING.md) before submitting a pull reques
 
 ---
 
-## Security
-
-If you find a vulnerability, please report it via SECURITY.md.
-
 ## Contacts
 
 Maintained by: ihavelapki
 
 ---
 
-## ⭐ Why this project?
+## Why this project?
 
 TinyMonitor is not just another monitoring tool.
 
